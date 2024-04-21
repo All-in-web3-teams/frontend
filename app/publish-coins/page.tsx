@@ -14,7 +14,7 @@ export default function PublishMeme() {
     hash
   })
 
-  const publishCoins = async () => {
+  const handlePublish = async () => {
     if (account.status !== 'connected') {
       return
     }
@@ -33,7 +33,7 @@ export default function PublishMeme() {
       <div className="m-4">
         <div className="text-xl mb-2">{account.status}</div>
 
-        <Button color="primary" onClick={publishCoins}>
+        <Button color="primary" onClick={handlePublish}>
           Test publish
         </Button>
         {isLoading && <div>Loading</div>}
