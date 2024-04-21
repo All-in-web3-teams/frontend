@@ -1,11 +1,5 @@
 'use client'
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Button,
-} from '@nextui-org/react'
+import { Card, CardHeader, CardBody, CardFooter, Button } from '@nextui-org/react'
 
 export default function Home() {
   return (

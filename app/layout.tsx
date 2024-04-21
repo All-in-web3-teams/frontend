@@ -21,14 +21,8 @@ export default function RootLayout({
       <body className={inter.className}>
         <AppProvider>
           <div
-            // style={{
-            //   display: 'flex',
-            //   justifyContent: 'flex-end',
-            //   marginTop: '1rem',
-            //   marginRight: '1rem',
-            // }}
             className="flex justify-end mt-1 mr-1">
-            <ConnectButton />
+            <ConnectButton/>
           </div>
           {children}
         </AppProvider>
