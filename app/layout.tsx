@@ -20,9 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AppProvider>
-          <div className="flex justify-center">
-            <Header />
-          </div>
+          <Header />
           {children}
         </AppProvider>
       </body>

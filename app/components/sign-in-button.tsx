@@ -21,8 +21,8 @@ export default function SignInButton() {
         <div className="flex items-center gap-8">
           <Select
             classNames={{
-              base: 'w-[13vw] bg-[#FFC849] text-black rounded-[90px]',
-              trigger: 'bg-[#FFC849]'
+              base: 'w-[13vw]',
+              trigger: 'bg-[#FFC849] rounded-full'
             }}
             aria-label="Chain selection"
             defaultSelectedKeys={[chainId]}
