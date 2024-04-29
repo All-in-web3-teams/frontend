@@ -6,12 +6,19 @@ import { useEffect, useState } from 'react'
 import { Address, Hash } from 'viem'
 import Form, { ControlItem } from '../components/Form'
 
+type FieldType = {
+  name: string
+  symbol: string
+  totalSupply: string
+  decimals: string
+}
+
 export default function PublishMeme() {
   const controls = [
     { type: 'text', key: 'name', label: 'Name', rules: [{ required: true, message: 'Please enter the token name' }] },
-    { type: 'text', key: 'symbol', label: 'Symbol' },
-    { type: 'text', key: 'totalSupply', label: 'Total supply' },
-    { type: 'text', key: 'decimals', label: 'Decimals' }
+    { type: 'text', key: 'symbol', label: 'Symbol', rules: [{ required: true, message: 'Please enter the token symbol' }] },
+    { type: 'number', key: 'totalSupply', label: 'Total supply', rules: [{ required: true, message: 'Please enter the token total supply' }] },
+    { type: 'number', key: 'decimals', label: 'Decimals', rules: [{ required: true, message: 'Please enter the token decimals' }] }
   ] as ControlItem[]
 
   const account = useAccount()
@@ -21,7 +28,7 @@ export default function PublishMeme() {
     hash
   })
 
-  const handlePublish = async (values: any) => {
+  const handlePublish = async (values: FieldType) => {
     // if (account.status !== 'connected') {
     //   return
     // }

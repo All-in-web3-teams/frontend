@@ -33,29 +33,22 @@ export type ControlItem = {
     }
 )
 
-export interface FormProps {
+export interface FormProps<Values = any> {
   controls: ControlItem[]
-  onSubmit: (values: { [K in ControlItem['key']]: string }) => void
-  values?: { [K in ControlItem['key']]: string }
+  onSubmit: (values: Values) => void
+  values?: Values
   submitText?: string
 }
 
-const DefaultProps: FormProps = {
-  controls: [],
-  onSubmit: () => {},
-  values: {},
-  submitText: 'Submit'
-}
-
-export default function Form(props: FormProps = DefaultProps) {
-  const { controls, onSubmit, values, submitText } = props
-  const [form, setForm] = useState({} as Record<string, any>)
-  const [error, setError] = useState({} as { [key in ControlItem['key']]: { isInvalid: boolean; errorMessage: string } })
+export default function Form<Values>(props: FormProps<Values>) {
+  const { controls, onSubmit, values = {}, submitText = 'Submit' } = props
+  const [form, setForm] = useState({} as any)
+  const [error, setError] = useState({} as { [key: string]: { isInvalid: boolean; errorMessage: string } })
 
   useEffect(() => {
     if (controls && controls.length > 0) {
-      const form = {}
-      controls.forEach((i) => Object.assign(form, { [i.key]: '' }))
+      const form = {} as Values
+      controls.forEach((i) => Object.assign(form as any, { [i.key]: '' }))
       const error = {}
       controls.forEach((i) =>
         Object.assign(error, {
@@ -66,22 +59,50 @@ export default function Form(props: FormProps = DefaultProps) {
         })
       )
       setForm(form)
-      setError(error)
+      setError(error as any)
     }
   }, [JSON.stringify(controls)])
 
   useEffect(() => {
     if (values && Object.keys(values).length > 0) {
-      setForm(values)
+      setForm(values as Values)
     }
   }, [JSON.stringify(values)])
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
 
-    let noError = true
+    let newError = {} as { [key: string]: { isInvalid: boolean; errorMessage: string } }
+
     for (const key of Object.keys(form)) {
-      if (error[key].isInvalid) {
+      const value = form[key]
+      const control = controls.find((item) => item.key === key)!
+
+      if (control?.rules && control.rules.length > 0) {
+        let rendered = false
+        //ToDo: min/max validator
+        control.rules.map((item) => {
+          if (!rendered && 'required' in item && item.required && !value) {
+            rendered = true
+            newError = {
+              ...newError,
+              [control.key]: { isInvalid: true, errorMessage: item.message }
+            }
+          } else {
+            newError = {
+              ...newError,
+              [control.key]: { isInvalid: false, errorMessage: '' }
+            }
+          }
+        })
+      }
+
+      setError(newError)
+    }
+
+    let noError = true
+    for (const key of Object.keys(newError)) {
+      if (newError[key].isInvalid) {
         noError = false
       }
     }
@@ -90,16 +111,17 @@ export default function Form(props: FormProps = DefaultProps) {
       return
     }
 
-    onSubmit(form)
+    onSubmit(form as any)
   }
 
   const handleFormChange = async (key: string, value: string) => {
     const control = controls.find((item) => item.key === key)!
-    if (control.type === 'number') {
+
+    if (control.type === 'number' && value) {
       if (/^\d*$/.test(value)) {
         setForm({
           ...form,
-          [key]: value
+          [key]: Number(value)
         })
       }
     } else {
@@ -109,20 +131,24 @@ export default function Form(props: FormProps = DefaultProps) {
       })
     }
 
+    handleSetError(control, value)
+  }
+
+  const handleSetError = (control: ControlItem, value: any) => {
     if (control?.rules && control.rules.length > 0) {
       let rendered = false
       //ToDo: min/max validator
-      control.rules.map((item, index) => {
+      control.rules.map((item) => {
         if (!rendered && 'required' in item && item.required && !value) {
           rendered = true
           setError({
             ...error,
-            [key]: { isInvalid: true, errorMessage: item.message }
+            [control.key]: { isInvalid: true, errorMessage: item.message }
           })
         } else {
           setError({
             ...error,
-            [key]: { isInvalid: false, errorMessage: '' }
+            [control.key]: { isInvalid: false, errorMessage: '' }
           })
         }
       })
@@ -130,7 +156,7 @@ export default function Form(props: FormProps = DefaultProps) {
   }
 
   const renderFormControl = (c: ControlItem) => {
-    if (c.type === 'text') {
+    if (c.type === 'text' || c.type === 'number') {
       return (
         <div className="mb-3" key={c.key}>
           <Input
