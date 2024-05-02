@@ -3,6 +3,11 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 import { WalletOptions } from '@/app/components/wallet-options'
 import { useAccount, useChainId, useDisconnect, useSwitchChain } from 'wagmi'
 import { addressOmit } from '../utils/textUtil'
+import { useEffect } from 'react'
+import { signMessage } from '@wagmi/core'
+import { config } from '@/app/utils/config'
+import axios from 'axios'
+import { tokenKey } from '../constans'
 
 export default function SignInButton() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -13,7 +18,34 @@ export default function SignInButton() {
   const chainId = useChainId()
   const { chains, switchChain } = useSwitchChain()
 
-  const nowChain = chains.find((chain) => chain.id === chainId)?.name
+  const completeSignIn = async () => {
+    // 检查 是否有 token 了, 没有则继续获取(暂定检查 localStorage)
+    const token = localStorage.getItem(tokenKey)
+
+    if (token) return
+
+    // 获取 随机数
+    const resNonce = await axios.get(`api/nonce/${address?.toLocaleLowerCase()}`)
+
+    const nonce: string = resNonce.data.nonce
+
+    // 签名 随机数
+    const signature = await signMessage(config, { message: nonce })
+
+    // 完成登录
+    const resLogin = await axios.post('/api/login', {
+      address: address?.toLocaleLowerCase(),
+      signature
+    })
+
+    if (resLogin.status === 200) {
+      localStorage.setItem(tokenKey, resLogin.data.token)
+    }
+  }
+
+  useEffect(() => {
+    isConnected && completeSignIn()
+  }, [isConnected])
 
   return (
     <>
@@ -21,8 +53,8 @@ export default function SignInButton() {
         <div className="flex items-center gap-8">
           <Select
             classNames={{
-              base: 'w-[13vw] bg-[#FFC849] text-black rounded-[90px]',
-              trigger: 'bg-[#FFC849]'
+              base: 'w-[13vw]',
+              trigger: 'bg-[#FFC849] rounded-full'
             }}
             aria-label="Chain selection"
             defaultSelectedKeys={[chainId]}
@@ -43,7 +75,6 @@ export default function SignInButton() {
           Sign in
         </Button>
       )}
-
       <Modal size="sm" isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           <ModalHeader className="flex text-center flex-col gap-1">Welcome Meme</ModalHeader>
