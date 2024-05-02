@@ -20,10 +20,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AppProvider>
-          <div className="flex justify-center">
-            <Header />
+          <div className="bg-[#fbf8ee] min-h-screen px-5 md:px-32">
+            {/* <div
+            className="flex justify-end mt-1 mr-1">
+            <ConnectButton/>
+          </div> */}
+            {children}
           </div>
-          {children}
         </AppProvider>
       </body>
     </html>
