@@ -1,10 +1,11 @@
 'use client'
-import { Card, CardHeader, CardBody, CardFooter, Button } from '@nextui-org/react'
+import { Card, CardBody } from '@nextui-org/react'
 import { useAccount, useWalletClient, useWaitForTransactionReceipt } from 'wagmi'
-import GenerateMeme from '../../public/contract/generateMeme.json'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Address, Hash } from 'viem'
 import Form, { ControlItem } from '../components/Form'
+import SignInWallet from '../components/page/SignInWallet'
+import { baseApi } from '../utils/axios-config'
 
 type FieldType = {
   name: string
@@ -28,18 +29,24 @@ export default function PublishMeme() {
     hash
   })
 
-  const handlePublish = async (values: FieldType) => {
-    // if (account.status !== 'connected') {
-    //   return
-    // }
-    // const hash = await walletClient.data?.deployContract({
-    //   abi: GenerateMeme.abi,
-    //   bytecode: GenerateMeme.bytecode as Address,
-    //   args: ['Fuck', 'F', 18, 1000000]
-    // })
-    // setHash(hash)
+  const { address, isConnected } = useAccount()
 
-    console.log(values)
+  const handlePublish = async (values: FieldType) => {
+    console.log('values: ', values)
+
+    const res = await baseApi.get('api/abi')
+    console.log('res: ', res)
+    const GenerateMeme = res.data
+
+    if (account.status !== 'connected') {
+      return
+    }
+    const hash = await walletClient.data?.deployContract({
+      abi: GenerateMeme.abi,
+      bytecode: GenerateMeme.bytecode as Address,
+      args: ['Fuck', 'F', 18, 1000000]
+    })
+    setHash(hash)
   }
 
   return (
@@ -57,11 +64,17 @@ export default function PublishMeme() {
 
       <Card>
         <CardBody className="py-40">
-          <div className="mb-7 flex justify-center">
-            <div className="font-bold text-3xl">Standard ERC20 token</div>
-          </div>
+          {isConnected ? (
+            <>
+              <div className="mb-7 flex justify-center">
+                <div className="font-bold text-3xl">Standard ERC20 token</div>
+              </div>
 
-          <Form controls={controls} onSubmit={handlePublish} submitText="Publish"></Form>
+              <Form controls={controls} onSubmit={handlePublish} submitText="Publish"></Form>
+            </>
+          ) : (
+            <SignInWallet />
+          )}
         </CardBody>
       </Card>
     </div>

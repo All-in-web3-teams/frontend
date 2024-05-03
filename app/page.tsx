@@ -1,5 +1,5 @@
 'use client'
-import { Card, CardHeader, CardBody, CardFooter, Button, Image } from '@nextui-org/react'
+import { Button, Image } from '@nextui-org/react'
 import { StartIcon } from './components/Icons'
 import { useRouter } from 'next/navigation'
 
@@ -18,9 +18,14 @@ export default function Home() {
           <div>Start your crypto journey with us today!</div>
         </div>
         <div className="mt-7">
-          <Button color="primary" className="text-[#333333] text-[32px] font-medium h-24 px-10" endContent={<StartIcon />} onClick={()=>{
-            router.push('/publish-coins')
-          }}>
+          <Button
+            color="primary"
+            className="text-[#333333] text-[32px] font-medium h-24 px-10"
+            endContent={<StartIcon />}
+            onClick={() => {
+              router.push('/publish-coins')
+            }}
+          >
             Get Started
           </Button>
         </div>

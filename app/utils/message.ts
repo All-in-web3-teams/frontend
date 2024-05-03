@@ -4,7 +4,7 @@ import { ToastOptions, toast } from 'react-toastify'
 // 设置全局配置
 const configure = (duration?: number | null): ToastOptions => ({
   position: 'top-center',
-  autoClose: duration ?? 1000,
+  autoClose: duration ?? 1500,
   hideProgressBar: false,
   closeOnClick: true,
   pauseOnHover: true,
@@ -17,6 +17,8 @@ export const message = {
     toast.success(msg, configure(duration))
   },
   error(msg: string, duration?: number | null) {
+    console.log('执行error: ', msg)
+
     toast.error(msg, configure(duration))
   },
   info(msg: string, duration?: number | null) {

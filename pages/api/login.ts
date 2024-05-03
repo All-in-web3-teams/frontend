@@ -1,5 +1,5 @@
 // pages/api/send-request.ts
-import generateServerApi from '@/app/utils/axios-config'
+import { generateServerApi } from '@/app/utils/axios-config'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
@@ -13,6 +13,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         address,
         signature
       })
+
+      const setCookieHeader = response.headers['set-cookie']
+      if (setCookieHeader) {
+        res.setHeader('Set-Cookie', setCookieHeader)
+      }
 
       // 使用从后端程序收到的数据响应 API 请求
       res.status(200).json(response.data.data)

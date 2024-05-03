@@ -9,7 +9,14 @@ import { config } from '@/app/utils/config'
 import axios from 'axios'
 import { tokenKey } from '../constans'
 
-export default function SignInButton() {
+interface Props {
+  signInText: string
+  color?: 'orange'
+}
+
+export default function SignInButton({ signInText, color }: Props) {
+  const bgColor = color === 'orange' ? 'bg-[#FFC849]' : 'bg-white'
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
   const { disconnect } = useDisconnect()
@@ -39,7 +46,7 @@ export default function SignInButton() {
     })
 
     if (resLogin.status === 200) {
-      localStorage.setItem(tokenKey, resLogin.data.token)
+      // localStorage.setItem(tokenKey, resLogin.data.token)
     }
   }
 
@@ -71,8 +78,8 @@ export default function SignInButton() {
           </Button>
         </div>
       ) : (
-        <Button className="bg-white text-black rounded-full w-[13vw]" onPress={onOpen}>
-          Sign in
+        <Button className={bgColor + ' text-black rounded-full w-[13vw] border border-black'} onPress={onOpen}>
+          {signInText}
         </Button>
       )}
       <Modal size="sm" isOpen={isOpen} onOpenChange={onOpenChange}>

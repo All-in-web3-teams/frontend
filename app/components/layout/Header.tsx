@@ -9,7 +9,7 @@ export default function Header() {
         <div className="w-[22vw]">
           <Image src="/LOGO.svg" alt="Description" width={434} height={100} />
         </div>
-        <SignInButton />
+        <SignInButton signInText="Sign in" />
       </div>
     </div>
   )

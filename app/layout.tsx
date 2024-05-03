@@ -22,8 +22,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AppProvider>
-          <Header />
           <div className="bg-[#fbf8ee] min-h-screen px-5 md:px-32">
+            <Header />
             {/* <div
             className="flex justify-end mt-1 mr-1">
             <ConnectButton/>
@@ -31,6 +31,7 @@ export default function RootLayout({
             {children}
           </div>
         </AppProvider>
+        <ToastContainer />
       </body>
     </html>
   )
