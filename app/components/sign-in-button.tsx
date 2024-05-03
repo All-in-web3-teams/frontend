@@ -46,7 +46,7 @@ export default function SignInButton({ signInText, color }: Props) {
     })
 
     if (resLogin.status === 200) {
-      // localStorage.setItem(tokenKey, resLogin.data.token)
+      localStorage.setItem(tokenKey, resLogin.data.token)
     }
   }
 

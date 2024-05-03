@@ -1,11 +1,12 @@
 'use client'
 import { Card, CardBody } from '@nextui-org/react'
-import { useAccount, useWalletClient, useWaitForTransactionReceipt } from 'wagmi'
-import { useState } from 'react'
-import { Address, Hash } from 'viem'
+import { useAccount, useWalletClient } from 'wagmi'
+import { Address } from 'viem'
 import Form, { ControlItem } from '../components/Form'
 import SignInWallet from '../components/page/SignInWallet'
 import { baseApi } from '../utils/axios-config'
+import { message } from '../utils/message'
+import { useRouter } from 'next/navigation'
 
 type FieldType = {
   name: string
@@ -24,10 +25,8 @@ export default function PublishMeme() {
 
   const account = useAccount()
   const walletClient = useWalletClient()
-  const [hash, setHash] = useState<Hash>()
-  const { isLoading, isSuccess, data } = useWaitForTransactionReceipt({
-    hash
-  })
+
+  const router = useRouter()
 
   const { address, isConnected } = useAccount()
 
@@ -44,21 +43,18 @@ export default function PublishMeme() {
     const hash = await walletClient.data?.deployContract({
       abi: GenerateMeme.abi,
       bytecode: GenerateMeme.bytecode as Address,
-      args: ['Fuck', 'F', 18, 1000000]
+      args: [values.name, values.symbol, Number(values.decimals), Number(values.totalSupply)]
     })
-    setHash(hash)
+
+    if (hash) {
+      router.push(`/publish-result/${hash}`)
+    } else {
+      message.error('Failed to publish token')
+    }
   }
 
   return (
     <div>
-      {/* <div className="text-xl mb-2">{account.status}</div>
-
-        <Button color="primary" className='text-black' onClick={handlePublish}>
-          Test publish
-        </Button>
-        {isLoading && <div>Loading</div>}
-        {isSuccess && <div>{data?.contractAddress}</div>} */}
-
       <div className="text-4xl font-extrabold">Create your own Token,Fast and Easy!</div>
       <div className="text-[32px] mb-3 text-[#333333] font-medium">No hassle, just one click away. Start your crypto journey with us today!</div>
 
