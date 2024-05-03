@@ -1,0 +1,3 @@
+.wallet-button {
+  @apply flex items-center w-[22vw] h-[5vh] border-1 border-black ml-[2rem] mb-[1rem] rounded-md cursor-pointer;
+}
