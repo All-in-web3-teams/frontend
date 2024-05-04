@@ -8,6 +8,7 @@ import { signMessage } from '@wagmi/core'
 import { config } from '@/app/utils/config'
 import axios from 'axios'
 import { tokenKey } from '../constans'
+import { baseApi } from '../utils/axios-config'
 
 interface Props {
   signInText: string
@@ -26,27 +27,32 @@ export default function SignInButton({ signInText, color }: Props) {
   const { chains, switchChain } = useSwitchChain()
 
   const completeSignIn = async () => {
-    // 检查 是否有 token 了, 没有则继续获取(暂定检查 localStorage)
-    const token = localStorage.getItem(tokenKey)
+    // 检查 是否有 token 了, 没有则继续获取
+    const res = await baseApi('api/user')
 
-    if (token) return
+    if (res.data) return
 
     // 获取 随机数
-    const resNonce = await axios.get(`api/nonce/${address?.toLocaleLowerCase()}`)
+    const resNonce = await baseApi.get(`api/nonce/${address?.toLocaleLowerCase()}`)
 
     const nonce: string = resNonce.data.nonce
 
-    // 签名 随机数
-    const signature = await signMessage(config, { message: nonce })
+    try {
+      // 签名 随机数
+      const signature = await signMessage(config, { message: nonce })
 
-    // 完成登录
-    const resLogin = await axios.post('/api/login', {
-      address: address?.toLocaleLowerCase(),
-      signature
-    })
+      // 完成登录
+      const resLogin = await axios.post('/api/login', {
+        address: address?.toLocaleLowerCase(),
+        signature
+      })
 
-    if (resLogin.status === 200) {
-      localStorage.setItem(tokenKey, resLogin.data.token)
+      if (resLogin.status === 200) {
+        // localStorage.setItem(tokenKey, resLogin.data.token)
+      }
+    } catch (error) {
+      console.log('error: ', error)
+      disconnect()
     }
   }
 

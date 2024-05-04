@@ -3,6 +3,7 @@
 import { Connector, useConnect } from 'wagmi'
 import Metamask from './images/Metamask'
 import './wallet-options.css'
+import OKX from './images/OKX'
 
 interface Props {
   onClose: () => void
@@ -29,7 +30,7 @@ export function WalletOptions({ onClose }: Props) {
       case 'OKX Wallet': {
         return (
           <div className="wallet-button">
-            <Metamask className="ml-[2.2vw]" />
+            <OKX className="ml-[2.2vw]" />
             <span className="ml-[2vw]">Sign in with Okx</span>
           </div>
         )
