@@ -45,6 +45,14 @@ export default function Form<Values>(props: FormProps<Values>) {
   const [form, setForm] = useState({} as any)
   const [error, setError] = useState({} as { [key: string]: { isInvalid: boolean; errorMessage: string } })
 
+  const [isLoading, setIsLoading] = useState(false)
+
+  const loadingSubmit = async (func: (values: any) => void) => {
+    setIsLoading(true)
+    await func(values)
+    setIsLoading(false)
+  }
+
   useEffect(() => {
     if (controls && controls.length > 0) {
       const form = {} as Values
@@ -111,7 +119,7 @@ export default function Form<Values>(props: FormProps<Values>) {
       return
     }
 
-    onSubmit(form as any)
+    loadingSubmit(() => onSubmit(form as any))
   }
 
   const handleFormChange = async (key: string, value: string) => {
@@ -208,7 +216,7 @@ export default function Form<Values>(props: FormProps<Values>) {
     <form onSubmit={handleSubmit}>
       {controls.map((item) => renderFormControl(item))}
       <div className="flex justify-center mt-7">
-        <Button color="primary" className="text-[#333333] h-14 text-xl px-24 " type="submit">
+        <Button isLoading={isLoading} color="primary" className="text-[#333333] h-14 text-xl px-24 rounded-full" type="submit">
           {submitText}
         </Button>
       </div>

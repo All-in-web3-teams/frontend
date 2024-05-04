@@ -6,17 +6,22 @@ import { Hash } from 'viem'
 import ResponsiveImage from '@/app/components/images/responsiveImage'
 import axios from 'axios'
 import { useEffect, useState } from 'react'
+import { useAuth } from '@/app/hooks/user-auth'
 
 export default function PublishResult({ params }: { params: { hash: string } }) {
-  console.log('params: ', params)
+  useAuth()
 
-  const [contractAddress, setContractAddress] = useState<Hash>()
+  // const [contractAddress, setContractAddress] = useState<Hash>()
 
   const { hash } = params as { hash: Hash }
 
   const { isLoading, isSuccess, data } = useWaitForTransactionReceipt({
+    confirmations: 1,
+    pollingInterval: 1000,
     hash
   })
+
+  console.log('data: ', data)
 
   const router = useRouter()
 
@@ -31,14 +36,16 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
     })
     console.log('response: ', response)
     if (response.data.result.contractAddress) {
-      setContractAddress(response.data.result.contractAddress)
+      // setContractAddress(response.data.result.contractAddress)
     }
   }
 
   if (!hash) router.push('/publish-coins')
 
   useEffect(() => {
-    !isLoading && fetchDeployContracts(hash)
+    console.log('isLoading: ', isLoading)
+
+    // !isLoading && fetchDeployContracts(hash)
   }, [isLoading])
 
   return (
@@ -66,9 +73,9 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
         <CardBody className="py-40">
           <div className="flex flex-col items-center">
             {isLoading ? (
-              <ResponsiveImage path="/images/wait_dog.svg" alt="success" imgWidth="37vw" />
+              <ResponsiveImage path="/images/wait_dog.gif" alt="success" imgWidth="37vw" />
             ) : isSuccess ? (
-              <ResponsiveImage path="/images/success_dog.svg" alt="success" imgWidth="37vw" />
+              <ResponsiveImage path="/images/success_dog.gif" alt="success" imgWidth="37vw" />
             ) : (
               <ResponsiveImage path="/images/fail_dog.svg" alt="success" imgWidth="37vw" />
             )}
@@ -78,8 +85,8 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
             ) : isSuccess ? (
               <div className="flex flex-col gap-4 items-center">
                 <div className="text-2xl font-extrabold">You have already publish your token</div>
-                <div className="text-2xl text-[#906503]">{contractAddress}</div>
-                <Button className="bg-[#FFC849] rounded-full" onClick={() => window.open(`${process.env.NEXT_PUBLIC_ETHERSCAN_EXPLORER_URL}/address/${contractAddress}`, '_blank')}>
+                <div className="text-2xl text-[#906503]">{data?.contractAddress}</div>
+                <Button className="bg-[#FFC849] rounded-full" onClick={() => window.open(`${process.env.NEXT_PUBLIC_ETHERSCAN_EXPLORER_URL}/address/${data?.contractAddress}`, '_blank')}>
                   check detail
                 </Button>
                 <a href="#" className="text-[#169BD5]">

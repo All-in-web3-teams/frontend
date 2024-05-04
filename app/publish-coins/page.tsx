@@ -28,13 +28,10 @@ export default function PublishMeme() {
 
   const router = useRouter()
 
-  const { address, isConnected } = useAccount()
+  const { isConnected } = useAccount()
 
   const handlePublish = async (values: FieldType) => {
-    console.log('values: ', values)
-
     const res = await baseApi.get('api/abi')
-    console.log('res: ', res)
     const GenerateMeme = res.data
 
     if (account.status !== 'connected') {
