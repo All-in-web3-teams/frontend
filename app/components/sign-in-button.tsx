@@ -7,7 +7,6 @@ import { useEffect } from 'react'
 import { signMessage } from '@wagmi/core'
 import { config } from '@/app/utils/config'
 import axios from 'axios'
-import { tokenKey } from '../constans'
 import { baseApi } from '../utils/axios-config'
 
 interface Props {
@@ -42,7 +41,7 @@ export default function SignInButton({ signInText, color }: Props) {
       const signature = await signMessage(config, { message: nonce })
 
       // 完成登录
-      const resLogin = await axios.post('/api/login', {
+      const resLogin = await axios.post('http://localhost:9001/api/login', {
         address: address?.toLocaleLowerCase(),
         signature
       })
