@@ -49,7 +49,11 @@ export default function Form<Values>(props: FormProps<Values>) {
 
   const loadingSubmit = async (func: (values: any) => void) => {
     setIsLoading(true)
-    await func(values)
+    try {
+      await func(values)
+    } catch (error) {
+      console.log(error)
+    }
     setIsLoading(false)
   }
 

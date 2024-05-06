@@ -34,6 +34,8 @@ export default function PublishMeme() {
     const res = await baseApi.get('api/abi')
     const GenerateMeme = res.data
 
+    console.log('GenerateMeme: ', GenerateMeme, account.status)
+
     if (account.status !== 'connected') {
       return
     }

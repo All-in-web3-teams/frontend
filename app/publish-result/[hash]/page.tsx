@@ -4,14 +4,10 @@ import { useRouter } from 'next/navigation'
 import { useWaitForTransactionReceipt } from 'wagmi'
 import { Hash } from 'viem'
 import ResponsiveImage from '@/app/components/images/responsiveImage'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
 import { useAuth } from '@/app/hooks/user-auth'
 
 export default function PublishResult({ params }: { params: { hash: string } }) {
   useAuth()
-
-  // const [contractAddress, setContractAddress] = useState<Hash>()
 
   const { hash } = params as { hash: Hash }
 
@@ -21,32 +17,9 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
     hash
   })
 
-  console.log('data: ', data)
-
   const router = useRouter()
 
-  const fetchDeployContracts = async (tx: Hash) => {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_ETHERSCAN_API_URL}`, {
-      params: {
-        module: 'proxy',
-        action: 'eth_getTransactionReceipt',
-        txhash: tx,
-        apikey: process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY
-      }
-    })
-    console.log('response: ', response)
-    if (response.data.result.contractAddress) {
-      // setContractAddress(response.data.result.contractAddress)
-    }
-  }
-
   if (!hash) router.push('/publish-coins')
-
-  useEffect(() => {
-    console.log('isLoading: ', isLoading)
-
-    // !isLoading && fetchDeployContracts(hash)
-  }, [isLoading])
 
   return (
     <>

@@ -8,7 +8,7 @@ export function useAuth() {
 
   const checkLogin = async () => {
     // todo: 需切换为后端检查登录态的接口
-    const res = await baseApi('api/user')
+    const res = await baseApi('api/check-login')
     const isLogin = res.data
     if (!isLogin) {
       router.push('/')

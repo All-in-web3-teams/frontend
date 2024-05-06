@@ -27,12 +27,16 @@ export default function SignInButton({ signInText, color }: Props) {
 
   const completeSignIn = async () => {
     // 检查 是否有 token 了, 没有则继续获取
-    const res = await baseApi('api/user')
+    const res = await baseApi.get('api/check-login')
 
     if (res.data) return
 
     // 获取 随机数
-    const resNonce = await baseApi.get(`api/nonce/${address?.toLocaleLowerCase()}`)
+    const resNonce = await baseApi.get(`api/nonce`, {
+      params: {
+        address: address?.toLocaleLowerCase()
+      }
+    })
 
     const nonce: string = resNonce.data.nonce
 
@@ -41,14 +45,10 @@ export default function SignInButton({ signInText, color }: Props) {
       const signature = await signMessage(config, { message: nonce })
 
       // 完成登录
-      const resLogin = await axios.post('http://localhost:9001/api/login', {
+      const resLogin = await baseApi.post('api/login', {
         address: address?.toLocaleLowerCase(),
         signature
       })
-
-      if (resLogin.status === 200) {
-        // localStorage.setItem(tokenKey, resLogin.data.token)
-      }
     } catch (error) {
       console.log('error: ', error)
       disconnect()

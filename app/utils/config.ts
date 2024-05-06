@@ -7,7 +7,7 @@ export const config = createConfig({
   ssr: true,
   connectors: [],
   transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http()
+    [mainnet.id]: http(process.env.NEXT_PUBLIC_MAINNET_ALCHEMY_KEY),
+    [sepolia.id]: http(process.env.NEXT_PUBLIC_SEPOLIA_ALCHEMY_KEY)
   }
 })
