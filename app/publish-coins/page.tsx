@@ -46,6 +46,15 @@ export default function PublishMeme() {
     })
 
     if (hash) {
+      // 让后端存储交易
+      baseApi.post('api/deploy', {
+        tx_hash: hash,
+        name: values.name,
+        symbol: values.symbol,
+        decimals: values.decimals,
+        total_supply: values.totalSupply
+      })
+
       router.push(`/publish-result/${hash}`)
     } else {
       message.error('Failed to publish token')
