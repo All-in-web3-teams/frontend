@@ -7,6 +7,7 @@ import SignInWallet from '../components/page/SignInWallet'
 import { baseApi } from '../utils/axios-config'
 import { message } from '../utils/message'
 import { useRouter } from 'next/navigation'
+import { ethers } from 'ethers'
 
 type FieldType = {
   name: string
@@ -34,15 +35,13 @@ export default function PublishMeme() {
     const res = await baseApi.get('api/abi')
     const GenerateMeme = res.data
 
-    console.log('GenerateMeme: ', GenerateMeme, account.status)
-
     if (account.status !== 'connected') {
       return
     }
     const hash = await walletClient.data?.deployContract({
       abi: GenerateMeme.abi,
       bytecode: GenerateMeme.bytecode as Address,
-      args: [values.name, values.symbol, Number(values.decimals), Number(values.totalSupply)]
+      args: [values.name, values.symbol, Number(values.decimals), ethers.parseUnits(values.totalSupply.toString(), values.decimals)]
     })
 
     if (hash) {
@@ -52,7 +51,7 @@ export default function PublishMeme() {
         name: values.name,
         symbol: values.symbol,
         decimals: values.decimals,
-        total_supply: values.totalSupply
+        total_supply: ethers.parseUnits(values.totalSupply.toString(), values.decimals).toString()
       })
 
       router.push(`/publish-result/${hash}`)

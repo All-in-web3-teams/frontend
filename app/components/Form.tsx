@@ -42,6 +42,7 @@ export interface FormProps<Values = any> {
 
 export default function Form<Values>(props: FormProps<Values>) {
   const { controls, onSubmit, values = {}, submitText = 'Submit' } = props
+
   const [form, setForm] = useState({} as any)
   const [error, setError] = useState({} as { [key: string]: { isInvalid: boolean; errorMessage: string } })
 
@@ -203,7 +204,17 @@ export default function Form<Values>(props: FormProps<Values>) {
     if (c.type === 'select') {
       return (
         <div className="mb-3" key={c.key}>
-          <Select label={c.label} labelPlacement="outside-left" variant="bordered">
+          <Select
+            label={c.label}
+            labelPlacement="outside-left"
+            variant="bordered"
+            value={form[c.key]}
+            classNames={{
+              label: 'w-32 text-right text-lg',
+              base: 'justify-center'
+            }}
+            onChange={(e) => handleFormChange(c.key, e.target.value)}
+          >
             {c.options.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}

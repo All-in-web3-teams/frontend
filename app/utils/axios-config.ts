@@ -12,6 +12,8 @@ const baseApi = axios.create({
 
 baseApi.interceptors.response.use(
   (response) => {
+    console.log('response: ', response)
+
     if (response.status === 200) {
       return response.data
     }

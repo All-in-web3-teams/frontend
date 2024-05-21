@@ -3,3 +3,15 @@ type Data = {
   message?: string
   error?: string
 }
+
+type TokenObj = {
+  name: string // token name
+  contract_address: Address // token address
+}
+
+type SelectOption = {
+  label: string
+  value: string
+}
+
+type PartialContractFunctionParameters = Partial<ContractFunctionParameters>
