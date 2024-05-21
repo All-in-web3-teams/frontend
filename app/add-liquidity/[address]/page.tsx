@@ -68,8 +68,8 @@ export default function AddLiquidity({ params }: { params: { address: string } }
     // 要等待合约交易完成
 
     // 添加流动性
-    // const res = await addLiquidity(value.token1, value.token2, value.amount1, value.amount2, 0, 0, account?.address as Address, threeMinutesLaterTimestamp)
-    // console.log('res: ', res)
+    const res = await addLiquidity(value.token1, value.token2, value.amount1, value.amount2, 0, 0, account?.address as Address, threeMinutesLaterTimestamp)
+    console.log('res: ', res)
   }
 
   const initTokenList = async () => {
@@ -98,30 +98,6 @@ export default function AddLiquidity({ params }: { params: { address: string } }
   return (
     <div>
       <div className="text-2xl font-extrabold mb-3">Easily publish your own tokens</div>
-      <div
-        onClick={() => {
-          console.log('开始移除')
-          // 获取当前时间戳（毫秒）
-          const currentTimestamp = Date.now()
-
-          // 计算三分钟后的时间戳（毫秒）
-          const threeMinutesLaterTimestamp = currentTimestamp + 10 * 60 * 1000
-
-          removeLiquidity('0x86F81E248BF793b492a03D50Cc64A243a6b17409', '0x7177983cB5C40F3959eCa6b5d412CFA5bCe25984', 2, 0, 0, '0x23bfb19a44fc2c482098e10d0ccd52f22464b4b2', threeMinutesLaterTimestamp)
-          console.log('移除完成')
-        }}
-      >
-        测试移除流动性
-      </div>
-
-      <div
-        onClick={() => {
-          console.log('开始授权')
-          approve('0xF8C1ee40401Fb51f50B0930F76E8304E9BDa3a99', contracts.sushiSwapV2Router, 10)
-        }}
-      >
-        approve
-      </div>
 
       <Card>
         <CardBody className="py-40 flex justify-center items-center">

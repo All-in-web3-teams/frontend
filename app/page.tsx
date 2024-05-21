@@ -73,8 +73,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col justify-between lg:flex-row">
-      <Button onClick={() => callRouter('getAmountOut', [BigInt(10), BigInt(5000000000000000000), BigInt(10000000000000000000)])}>getParams</Button>
-      <div>地址: {result.data?.toString()}</div>
       <div className="pt-0 md:pt-40">
         <div className="text-3xl font-extrabold mb-3 md:text-7xl">
           <div>Create your own Token,</div>

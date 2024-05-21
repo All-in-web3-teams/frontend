@@ -62,6 +62,9 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
                 <Button className="bg-[#FFC849] rounded-full" onClick={() => window.open(`${process.env.NEXT_PUBLIC_ETHERSCAN_EXPLORER_URL}/address/${data?.contractAddress}`, '_blank')}>
                   check detail
                 </Button>
+                <Button className="bg-[#FFC849] rounded-full" onClick={() => router.push(`/add-liquidity/${data?.contractAddress}`)}>
+                  add Ligquidity
+                </Button>
                 <a href="#" className="text-[#169BD5]">
                   learn how to add token to the wallet
                 </a>
