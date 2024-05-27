@@ -15,7 +15,7 @@ type Data = {
 
 type TokenObj = {
   name: string // token name
-  contract_address: Address // token address
+  contractAddress: Address // token address
 }
 
 type SelectOption = {

@@ -47,11 +47,11 @@ export default function PublishMeme() {
     if (hash) {
       // 让后端存储交易
       baseApi.post('api/deploy', {
-        tx_hash: hash,
+        txHash: hash,
         name: values.name,
         symbol: values.symbol,
         decimals: values.decimals,
-        total_supply: ethers.parseUnits(values.totalSupply.toString(), values.decimals).toString()
+        TotalSupply: ethers.parseUnits(values.totalSupply.toString(), values.decimals).toString()
       })
 
       router.push(`/publish-result/${hash}`)
