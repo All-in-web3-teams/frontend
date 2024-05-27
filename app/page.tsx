@@ -13,6 +13,7 @@ import { Address } from 'viem'
 import { config } from './utils/config'
 import { useEffect } from 'react'
 import { uniswapV2PairAbi } from './abi/Uniswap-V2-pair'
+import { addTokenToMetamask } from './utils/wallet/Metamask'
 
 export default function Home() {
   const router = useRouter()
@@ -73,6 +74,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col justify-between lg:flex-row">
+      {/* <div
+        onClick={() => {
+          addTokenToMetamask('0xd8357d3a512f62b25ce5ff4b55a882496dc75a85', '002', 18)
+        }}
+      >
+        测试
+      </div> */}
       <div className="pt-0 md:pt-40">
         <div className="text-3xl font-extrabold mb-3 md:text-7xl">
           <div>Create your own Token,</div>
