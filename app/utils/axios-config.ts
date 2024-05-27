@@ -2,7 +2,13 @@
 import axios from 'axios'
 import { message } from './message'
 
-const baseURL = process.env.NEXT_PUBLIC_BASE_URL
+let baseURL
+
+if (!process.env.ENVIRONMENT || process.env.ENVIRONMENT === 'dev') {
+  baseURL = process.env.NEXT_PUBLIC_DEV_URL
+} else {
+  baseURL = process.env.NEXT_PUBLIC_PROD_URL
+}
 
 // 创建基础 API 实例
 const baseApi = axios.create({
