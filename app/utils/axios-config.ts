@@ -4,11 +4,13 @@ import { message } from './message'
 
 let baseURL
 
-if (!process.env.ENVIRONMENT && process.env.ENVIRONMENT === 'dev') {
+if (!process.env.ENVIRONMENT || process.env.ENVIRONMENT === 'dev') {
   baseURL = process.env.NEXT_PUBLIC_DEV_URL
 } else {
   baseURL = process.env.NEXT_PUBLIC_PROD_URL
 }
+
+console.log('baseURL: ', baseURL, process.env.ENVIRONMENT)
 
 // 创建基础 API 实例
 const baseApi = axios.create({
