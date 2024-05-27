@@ -82,7 +82,7 @@ export default function AddLiquidity({ params }: { params: { address: string } }
     const tokenOptionList: SelectOption[] = tokenList.map((item: TokenObj) => {
       return {
         label: item.name,
-        value: item.contract_address
+        value: item.contractAddress
       }
     })
 
