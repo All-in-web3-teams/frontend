@@ -1,5 +1,6 @@
 // global.d.ts
 interface Window {
+  innerWidth: number
   ethereum?: {
     isMetaMask?: boolean
     request: (...args: any[]) => Promise<any>

@@ -21,6 +21,8 @@ export type ruleItem = {
 export type ControlItem = {
   key: string
   label: string
+  defaultValue?: any
+  disabled?: boolean
   placeholder?: string
   rules?: ruleItem[]
 } & (
@@ -61,16 +63,25 @@ export default function Form<Values>(props: FormProps<Values>) {
   useEffect(() => {
     if (controls && controls.length > 0) {
       const form = {} as Values
+
       controls.forEach((i) => Object.assign(form as any, { [i.key]: '' }))
       const error = {}
-      controls.forEach((i) =>
+      controls.forEach((i) => {
+        if (i.defaultValue) {
+          Object.assign(form as any, { [i.key]: i.defaultValue })
+        } else {
+          Object.assign(form as any, { [i.key]: '' })
+        }
+
         Object.assign(error, {
           [i.key]: {
             isInvalid: false,
             errorMessage: ''
           }
         })
-      )
+      })
+      console.log('controls: ', controls)
+
       setForm(form)
       setError(error as any)
     }
@@ -176,7 +187,8 @@ export default function Form<Values>(props: FormProps<Values>) {
             type="text"
             variant="bordered"
             labelPlacement="outside-left"
-            value={form[c.key]}
+            value={form[c.key] ? form[c.key] : c.defaultValue}
+            disabled={c.disabled || false}
             label={c.label}
             placeholder={c.placeholder}
             classNames={{

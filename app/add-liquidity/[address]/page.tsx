@@ -30,7 +30,7 @@ export default function AddLiquidity({ params }: { params: { address: string } }
 
   const { writeContractAsync } = useWriteContract()
 
-  const { approve } = erc20(writeContractAsync)
+  const { approve } = erc20({ writeContractAsync })
   const { addLiquidity, removeLiquidity } = sushiswapV2Router(writeContractAsync)
 
   // 以下为需自定义hook

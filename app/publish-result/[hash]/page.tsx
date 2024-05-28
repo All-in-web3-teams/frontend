@@ -5,9 +5,14 @@ import { useWaitForTransactionReceipt } from 'wagmi'
 import { Hash } from 'viem'
 import ResponsiveImage from '@/app/components/images/responsiveImage'
 import { useAuth } from '@/app/hooks/user-auth'
+import { useEffect } from 'react'
+import erc20 from '@/app/utils/contract/erc20'
+import { addTokenToMetamask } from '@/app/utils/wallet/Metamask'
 
 export default function PublishResult({ params }: { params: { hash: string } }) {
   useAuth()
+
+  const { name, symbol } = erc20()
 
   const { hash } = params as { hash: Hash }
 
@@ -20,6 +25,18 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
   const router = useRouter()
 
   if (!hash) router.push('/publish-coins')
+
+  const addToken = async () => {
+    const tokenSymbol = await symbol(data?.contractAddress)
+
+    addTokenToMetamask(data?.contractAddress, tokenSymbol, 18)
+  }
+
+  useEffect(() => {
+    // 成功后, 添加代币到用户钱包
+    if (!isSuccess) return
+    addToken()
+  }, [isSuccess])
 
   return (
     <>

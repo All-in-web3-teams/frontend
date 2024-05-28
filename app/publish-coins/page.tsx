@@ -21,7 +21,7 @@ export default function PublishMeme() {
     { type: 'text', key: 'name', label: 'Name', rules: [{ required: true, message: 'Please enter the token name' }] },
     { type: 'text', key: 'symbol', label: 'Symbol', rules: [{ required: true, message: 'Please enter the token symbol' }] },
     { type: 'number', key: 'totalSupply', label: 'Total supply', rules: [{ required: true, message: 'Please enter the token total supply' }] },
-    { type: 'number', key: 'decimals', label: 'Decimals', rules: [{ required: true, message: 'Please enter the token decimals' }] }
+    { type: 'number', key: 'decimals', label: 'Decimals', defaultValue: 18, disabled: true }
   ] as ControlItem[]
 
   const account = useAccount()
@@ -32,7 +32,9 @@ export default function PublishMeme() {
   const { isConnected } = useAccount()
 
   const handlePublish = async (values: FieldType) => {
+    console.log('values: ', values)
     const res = await baseApi.get('api/abi')
+
     const GenerateMeme = res.data
 
     if (account.status !== 'connected') {

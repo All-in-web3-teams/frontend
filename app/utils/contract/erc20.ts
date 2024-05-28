@@ -4,11 +4,46 @@ import { Address } from 'viem'
 import { Config } from 'wagmi'
 import { WriteContractMutateAsync } from 'wagmi/query'
 import { message } from '../message'
-import { waitForTransactionReceipt } from '@wagmi/core'
+import { waitForTransactionReceipt, readContract } from '@wagmi/core'
 import { config } from '../config'
 
-const erc20 = (writeContractAsync: WriteContractMutateAsync<Config, unknown>) => {
+interface IProps {
+  writeContractAsync?: WriteContractMutateAsync<Config, unknown>
+}
+
+const erc20 = ({ writeContractAsync }: IProps = {}) => {
+  const name = async (address: Address | null | undefined) => {
+    if (!address) return null
+    try {
+      const result = await readContract(config, {
+        abi: erc20Abi,
+        address: address,
+        functionName: 'name'
+      })
+
+      return result
+    } catch (error: any) {
+      console.log('error: ', error)
+    }
+  }
+
+  const symbol = async (address: Address | null | undefined) => {
+    if (!address) return null
+    try {
+      const result = await readContract(config, {
+        abi: erc20Abi,
+        address: address,
+        functionName: 'symbol'
+      })
+
+      return result
+    } catch (error: any) {
+      console.log('error: ', error)
+    }
+  }
+
   const approve = async (address: Address, approveAddress: Address, amount: number) => {
+    if (!writeContractAsync) return
     try {
       const res = await writeContractAsync({
         address: address,
@@ -17,7 +52,6 @@ const erc20 = (writeContractAsync: WriteContractMutateAsync<Config, unknown>) =>
         // args: ['0x44c693Aa41eDA40345F5Ecd4ff154a7faB9077c1', ethers.parseUnits('1', 18)]
         args: [approveAddress, ethers.parseUnits(amount.toString(), 18)]
       })
-      console.log('res: ', res)
       // 等待交易确认
       // const receipt = await res.wait();
       // console.log('Transaction confirmed:', receipt);
@@ -36,7 +70,9 @@ const erc20 = (writeContractAsync: WriteContractMutateAsync<Config, unknown>) =>
   }
 
   return {
-    approve
+    approve,
+    name,
+    symbol
   }
 }
 

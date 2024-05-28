@@ -1,10 +1,13 @@
 import { Address } from 'viem'
 
-export const addTokenToMetamask = async (tokenAddress: Address, tokenSymbol: string, tokenDecimals: number) => {
+export const addTokenToMetamask = async (tokenAddress: Address | null | undefined, tokenSymbol: string | unknown, tokenDecimals: number) => {
   if (!window.ethereum) {
     console.error('您的浏览器不支持 Metamask')
     return
   }
+
+  if (!tokenAddress || !tokenSymbol) return
+
   try {
     const { ethereum } = window
 
