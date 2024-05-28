@@ -80,7 +80,6 @@ export default function Form<Values>(props: FormProps<Values>) {
           }
         })
       })
-      console.log('controls: ', controls)
 
       setForm(form)
       setError(error as any)

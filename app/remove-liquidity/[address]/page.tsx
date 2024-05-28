@@ -11,15 +11,16 @@ import contracts from '@/app/utils/addresses/contract-address'
 import erc20 from '@/app/utils/contract/erc20'
 import sushiswapV2Router from '@/app/utils/contract/sushiswap-v2-router'
 import { useRouter } from 'next/navigation'
+import uniswapV2Factory from '@/app/utils/contract/uniswap-v2-factory'
+import { message } from '@/app/utils/message'
 
 type FieldType = {
   token1: Address
-  amount1: number
+  liquidity: number
   token2: Address
-  amount2: number
 }
 
-export default function AddLiquidity({ params }: { params: { address: string } }) {
+export default function RemoveLiquidity({ params }: { params: { address: string } }) {
   useAuth()
 
   const account = useAccount()
@@ -29,7 +30,8 @@ export default function AddLiquidity({ params }: { params: { address: string } }
   const { writeContractAsync } = useWriteContract()
 
   const { approve } = erc20({ writeContractAsync })
-  const { addLiquidity } = sushiswapV2Router(writeContractAsync)
+  const { removeLiquidity } = sushiswapV2Router(writeContractAsync)
+  const { getPair } = uniswapV2Factory()
 
   // 以下为需自定义hook
   // 代币列表, 通过访问 get-all-token 获取
@@ -46,15 +48,22 @@ export default function AddLiquidity({ params }: { params: { address: string } }
 
   const controls = [
     { type: 'select', key: 'token1', label: 'Token1', options: tokenOption, rules: [{ required: true, message: 'Please enter the token1 name' }] },
-    { type: 'number', key: 'amount1', label: 'Amount1', rules: [{ required: true, message: 'Please enter the token1 amount' }] },
     { type: 'select', key: 'token2', label: 'Token2', options: tokenOption, rules: [{ required: true, message: 'Please enter the token2 name' }] },
-    { type: 'number', key: 'amount2', label: 'Amount2', rules: [{ required: true, message: 'Please enter the token2 amount' }] }
+    { type: 'number', key: 'liquidity', label: 'Liquidity', rules: [{ required: true, message: 'Please enter the liquidity' }] }
   ] as ControlItem[]
 
-  const handleAddLuiquidity = async (value: FieldType) => {
+  const handleRemoveLuiquidity = async (value: FieldType) => {
+    // 根据选中的代币, 找到代币对的合约
+    const contract = await getPair(value.token1, value.token2)
+    console.log('contract: ', contract)
+
+    if (!contract || contract === '0x0000000000000000000000000000000000000000') {
+      message.error('Please select the correct trading pair.')
+      return
+    }
+
     // 完成授权
-    const resArr = await Promise.all([approve(value.token1, contracts.sushiSwapV2Router, value.amount1), approve(value.token2, contracts.sushiSwapV2Router, value.amount2)])
-    console.log('resArr: ', resArr)
+    const approveRes = await approve(contract, contracts.sushiSwapV2Router, value.liquidity)
 
     // 获取当前时间戳（毫秒）
     const currentTimestamp = Date.now()
@@ -65,10 +74,12 @@ export default function AddLiquidity({ params }: { params: { address: string } }
     // 要等待合约交易完成
 
     // 添加流动性
-    const res = await addLiquidity(value.token1, value.token2, value.amount1, value.amount2, 0, 0, account?.address as Address, threeMinutesLaterTimestamp)
-    // log结果: res: 0x46f26e3ce2c62079b15ffe257fe013b5afe21337b804bdcf4f7c72fbd1ed55bf
+    const res = await removeLiquidity(value.token1, value.token2, value.liquidity, 0, 0, account?.address as Address, threeMinutesLaterTimestamp)
+    // log结果(交易hash): res: 0x46f26e3ce2c62079b15ffe257fe013b5afe21337b804bdcf4f7c72fbd1ed55bf
     console.log('res: ', res)
-    router.push(`/publish-result/${res}`)
+    // todo: 跳转到加载-成功页面
+    message.success('Successfully removed liquidity.')
+    // router.push(`/publish-result/${res}`)
   }
 
   const initTokenList = async () => {
@@ -96,12 +107,12 @@ export default function AddLiquidity({ params }: { params: { address: string } }
 
   return (
     <div>
-      <div className="text-2xl font-extrabold mb-3">Easily add tokens liquidity</div>
+      <div className="text-2xl font-extrabold mb-3">Easily remove tokens liquidity</div>
 
       <Card>
         <CardBody className="py-40 flex justify-center items-center">
-          <div className="text-1xl font-extrabold">Add Ligquidity</div>
-          <Form controls={controls} onSubmit={handleAddLuiquidity} submitText="Submit"></Form>
+          <div className="text-1xl font-extrabold">Remove Ligquidity</div>
+          <Form controls={controls} onSubmit={handleRemoveLuiquidity} submitText="Submit"></Form>
         </CardBody>
       </Card>
     </div>

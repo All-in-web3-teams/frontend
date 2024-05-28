@@ -2,7 +2,7 @@
 import { Card, CardBody, Button } from '@nextui-org/react'
 import { useRouter } from 'next/navigation'
 import { useWaitForTransactionReceipt } from 'wagmi'
-import { Hash } from 'viem'
+import { Hash, Log } from 'viem'
 import ResponsiveImage from '@/app/components/images/responsiveImage'
 import { useAuth } from '@/app/hooks/user-auth'
 import { useEffect } from 'react'
@@ -26,10 +26,37 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
 
   if (!hash) router.push('/publish-coins')
 
+  // 交易成功后, 添加 新发的代币 或 LP流动性代币
   const addToken = async () => {
-    const tokenSymbol = await symbol(data?.contractAddress)
+    // todo: 扩展性不够
+    if (data?.contractAddress) {
+      // 不是空走的是添加 erc20
+      const tokenSymbol = await symbol(data?.contractAddress)
 
-    addTokenToMetamask(data?.contractAddress, tokenSymbol, 18)
+      addTokenToMetamask(data?.contractAddress, tokenSymbol, 18)
+    } else {
+      // 空说明是添加流动性
+      const logs: Log<bigint, number, false>[] | undefined = data?.logs
+      if (logs) {
+        const log = logs[logs.length - 1]
+        const contractAddress = log.address
+
+        const tokenSymbol = await symbol(log.address)
+        console.log('contractAddress: ', contractAddress, 'tokenSymbol: ', tokenSymbol)
+
+        addTokenToMetamask(contractAddress, tokenSymbol, 18)
+      }
+    }
+  }
+
+  const generateSuccessText = (isSuccess: boolean, contract: any) => {
+    if (isSuccess) {
+      if (contract) {
+        return 'You have already publish your token'
+      } else {
+        return 'You have already add Liquidity'
+      }
+    }
   }
 
   useEffect(() => {
@@ -74,7 +101,7 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
               <div className="text-2xl font-extrabold">Your request is being processed</div>
             ) : isSuccess ? (
               <div className="flex flex-col gap-4 items-center">
-                <div className="text-2xl font-extrabold">You have already publish your token</div>
+                <div className="text-2xl font-extrabold">{generateSuccessText(isSuccess, data?.contractAddress)}</div>
                 <div className="text-2xl text-[#906503]">{data?.contractAddress}</div>
                 <Button className="bg-[#FFC849] rounded-full" onClick={() => window.open(`${process.env.NEXT_PUBLIC_ETHERSCAN_EXPLORER_URL}/address/${data?.contractAddress}`, '_blank')}>
                   check detail

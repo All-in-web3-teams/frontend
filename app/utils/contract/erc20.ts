@@ -28,7 +28,12 @@ const erc20 = ({ writeContractAsync }: IProps = {}) => {
   }
 
   const symbol = async (address: Address | null | undefined) => {
-    if (!address) return null
+    if (!address) {
+      console.log('地址为空')
+
+      return null
+    }
+
     try {
       const result = await readContract(config, {
         abi: erc20Abi,

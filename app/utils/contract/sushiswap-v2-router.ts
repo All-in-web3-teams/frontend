@@ -14,6 +14,7 @@ const sushiswapV2Router = (writeContractAsync: WriteContractMutateAsync<Config, 
       args: [tokenA, tokenB, ethers.parseUnits(amountADesired.toString(), 18), ethers.parseUnits(amountBDesired.toString(), 18), ethers.parseUnits(amountAMin.toString(), 18), ethers.parseUnits(amountBMin.toString(), 18), to, BigInt(deadline)]
     })
     console.log('res: ', res)
+    return res
   }
 
   const removeLiquidity = async (tokenA: Address, tokenB: Address, liquidity: number, amountAMin: number, amountBMin: number, to: Address, deadline: number) => {
@@ -23,7 +24,7 @@ const sushiswapV2Router = (writeContractAsync: WriteContractMutateAsync<Config, 
         abi: sushiSwapV2RouterAbi,
         functionName: 'removeLiquidity',
         // args: [tokenA, tokenB, ethers.parseUnits(liquidity.toString(), 18), ethers.parseUnits(amountAMin.toString(), 18), ethers.parseUnits(amountBMin.toString(), 18), to, ethers.parseUnits(deadline.toString(), 18)]
-        args: [tokenA, tokenB, BigInt(liquidity), ethers.parseUnits(amountAMin.toString(), 18), ethers.parseUnits(amountBMin.toString(), 18), to, BigInt(deadline)]
+        args: [tokenA, tokenB, ethers.parseUnits(liquidity.toString(), 18), ethers.parseUnits(amountAMin.toString(), 18), ethers.parseUnits(amountBMin.toString(), 18), to, BigInt(deadline)]
       })
       console.log('res: ', res)
       return res
