@@ -11,6 +11,10 @@ import contracts from '@/app/utils/addresses/contract-address'
 import erc20 from '@/app/utils/contract/erc20'
 import sushiswapV2Router from '@/app/utils/contract/sushiswap-v2-router'
 import { useRouter } from 'next/navigation'
+import uniswapV2Pair from '@/app/utils/contract/uniswap-v2-pair'
+import uniswapV2Factory from '@/app/utils/contract/uniswap-v2-factory'
+import { message } from '@/app/utils/message'
+import { ethers } from 'ethers'
 
 type FieldType = {
   token1: Address
@@ -30,6 +34,8 @@ export default function AddLiquidity({ params }: { params: { address: string } }
 
   const { approve } = erc20({ writeContractAsync })
   const { addLiquidity } = sushiswapV2Router(writeContractAsync)
+  const { getReserves, token0, token1 } = uniswapV2Pair()
+  const { getPair } = uniswapV2Factory()
 
   // 以下为需自定义hook
   // 代币列表, 通过访问 get-all-token 获取
@@ -51,7 +57,54 @@ export default function AddLiquidity({ params }: { params: { address: string } }
     { type: 'number', key: 'amount2', label: 'Amount2', rules: [{ required: true, message: 'Please enter the token2 amount' }] }
   ] as ControlItem[]
 
+  /**
+    - 提交表单后, 首先检查是否已经 pair
+      - 有的话就是重复添加流动性
+        - 通过 getReserves 拿出两个代币的储备量
+        - 通过 token0, token1 确认 表单的两种代币类型, 完成配对
+        - 算出比例, 然后根据 token0 调整 token1 的数量
+      - 没有就是第一次添加流动性
+   */
   const handleAddLuiquidity = async (value: FieldType) => {
+    // 根据选中的代币, 找到代币对的合约
+    const contract = await getPair(value.token1, value.token2)
+    console.log('contract: ', contract)
+
+    // 已创建的情况
+    if (contract && contract !== '0x0000000000000000000000000000000000000000') {
+      const reverses = await getReserves(contract)
+
+      if (!reverses) {
+        message.error('The reserve amount of the token pair cannot be obtained.')
+        return
+      }
+
+      const reverse0 = Number(ethers.formatUnits(reverses[0], 18))
+      const reverse1 = Number(ethers.formatUnits(reverses[1], 18))
+
+      const rate = reverse0 / reverse1
+
+      const token0Res = await token0(contract)
+      const token1Res = await token1(contract)
+
+      if (!token0Res || !token1Res) {
+        message.error('The token name of the token pair cannot be obtained.')
+        return
+      }
+
+      console.log('rate: ', rate)
+      if (token0Res === value.token1 && token1Res === value.token2) {
+        console.log('token0Res 是 token1')
+
+        value.amount2 = value.amount1 / rate
+      } else {
+        console.log('token0Res 是 token2')
+
+        value.amount1 = value.amount2 / rate
+      }
+
+      console.log('value: ', value)
+    }
     // 完成授权
     const resArr = await Promise.all([approve(value.token1, contracts.sushiSwapV2Router, value.amount1), approve(value.token2, contracts.sushiSwapV2Router, value.amount2)])
     console.log('resArr: ', resArr)
@@ -90,6 +143,19 @@ export default function AddLiquidity({ params }: { params: { address: string } }
     setTokenOption(tokenOptionList)
   }
 
+  const test = async () => {
+    console.log('test: ')
+
+    const res = await getReserves('0xe7221770f4ccf51b93977715a2eD87B8819a5643')
+    console.log('res: ', res)
+
+    const res0 = await token0('0xe7221770f4ccf51b93977715a2eD87B8819a5643')
+    console.log('res0: ', res0)
+
+    const res1 = await token1('0xe7221770f4ccf51b93977715a2eD87B8819a5643')
+    console.log('res1: ', res1)
+  }
+
   useEffect(() => {
     initTokenList()
   }, [])
@@ -97,7 +163,6 @@ export default function AddLiquidity({ params }: { params: { address: string } }
   return (
     <div>
       <div className="text-2xl font-extrabold mb-3">Easily add tokens liquidity</div>
-
       <Card>
         <CardBody className="py-40 flex justify-center items-center">
           <div className="text-1xl font-extrabold">Add Ligquidity</div>

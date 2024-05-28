@@ -4,6 +4,8 @@ import { Config } from 'wagmi'
 import { WriteContractMutateAsync } from 'wagmi/query'
 import contracts from '../addresses/contract-address'
 import { sushiSwapV2RouterAbi } from '@/app/abi/SushiSwap-V2-router'
+import { readContract } from '@wagmi/core'
+import { config } from '../config'
 
 const sushiswapV2Router = (writeContractAsync: WriteContractMutateAsync<Config, unknown>) => {
   const addLiquidity = async (tokenA: Address, tokenB: Address, amountADesired: number, amountBDesired: number, amountAMin: number, amountBMin: number, to: Address, deadline: number) => {
@@ -33,9 +35,20 @@ const sushiswapV2Router = (writeContractAsync: WriteContractMutateAsync<Config, 
     }
   }
 
+  const getAmountsIn = async (amountIn: number, tokenAddresses: Address[]) => {
+    const result = readContract(config, {
+      address: contracts.sushiSwapV2Router,
+      abi: sushiSwapV2RouterAbi,
+      functionName: 'getAmountsIn',
+      args: [ethers.parseUnits(amountIn.toString(), 18), tokenAddresses]
+    })
+    return result
+  }
+
   return {
     addLiquidity,
-    removeLiquidity
+    removeLiquidity,
+    getAmountsIn
   }
 }
 
