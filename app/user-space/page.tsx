@@ -36,7 +36,8 @@ export default function UserSpace() {
       case 'action':
         return (
           <div className="flex items-center">
-            <Button onClick={() => router.push(`/add-liquidity/${item.address}`)}>add Liquidity</Button>| <Button onClick={() => router.push(`/remove-liquidity/${item.address}`)}>remove Liquidity</Button>| <Button>relate social channels</Button>
+            <Button onClick={() => router.push(`/add-liquidity/${item.address}`)}>add Liquidity</Button>| <Button onClick={() => router.push(`/remove-liquidity/${item.address}`)}>remove Liquidity</Button>|{' '}
+            <Button onClick={() => router.push(`/relate-social-channels/${item.address}`)}>relate social channels</Button>
           </div>
         )
       default:

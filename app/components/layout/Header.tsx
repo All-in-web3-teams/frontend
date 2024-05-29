@@ -2,8 +2,6 @@
 import Image from 'next/image'
 import SignInButton from '@/app/components/sign-in-button'
 import { useRouter } from 'next/navigation'
-import { Button } from '@nextui-org/react'
-import axios from 'axios'
 
 export default function Header() {
   const router = useRouter()
