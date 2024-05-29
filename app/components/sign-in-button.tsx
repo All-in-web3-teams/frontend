@@ -8,6 +8,7 @@ import { signMessage } from '@wagmi/core'
 import { config } from '@/app/utils/config'
 import { baseApi } from '../utils/axios-config'
 import TooltipTimer from './utils/TooltipTimer'
+import { useRouter } from 'next/navigation'
 
 interface Props {
   signInText: string
@@ -18,6 +19,8 @@ export default function SignInButton({ signInText, color }: Props) {
   const bgColor = color === 'orange' ? 'bg-[#FFC849]' : 'bg-white'
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
+
+  const router = useRouter()
 
   const { disconnect } = useDisconnect()
   const { address, isConnected } = useAccount()
@@ -81,8 +84,8 @@ export default function SignInButton({ signInText, color }: Props) {
           {/* <Button className="bg-white text-black rounded-full w-[13vw]" onPress={() => disconnect()}>
             {addressOmit(address)}
           </Button> */}
-          <TooltipTimer text="open user space" duration={3} placement="bottom" showArrow>
-            <Button className="bg-white text-black rounded-full w-[13vw]" onPress={() => disconnect()}>
+          <TooltipTimer text="open your space" duration={3} placement="top" showArrow>
+            <Button className="bg-white text-black rounded-full w-[13vw]" onPress={() => router.push('/user-space')}>
               {addressOmit(address)}
             </Button>
           </TooltipTimer>

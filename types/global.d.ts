@@ -25,3 +25,10 @@ type SelectOption = {
 }
 
 type PartialContractFunctionParameters = Partial<ContractFunctionParameters>
+
+type AddressOrNull = Address | null | undefined
+
+type userInfo = {
+  address: AddressOrNull
+  contractAddress: AddressOrNull[]
+}

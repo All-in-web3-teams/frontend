@@ -21,9 +21,14 @@ const erc20 = ({ writeContractAsync }: IProps = {}) => {
         functionName: 'name'
       })
 
-      return result
+      if (typeof result === 'string') {
+        return result // 如果结果是字符串，则直接返回
+      } else {
+        return '' // 如果结果不是字符串，返回空字符串
+      }
     } catch (error: any) {
       console.log('error: ', error)
+      return ''
     }
   }
 
@@ -41,7 +46,33 @@ const erc20 = ({ writeContractAsync }: IProps = {}) => {
         functionName: 'symbol'
       })
 
-      return result
+      if (typeof result === 'string') {
+        return result // 如果结果是字符串，则直接返回
+      } else {
+        return '' // 如果结果不是字符串，返回空字符串
+      }
+    } catch (error: any) {
+      console.log('error: ', error)
+    }
+  }
+
+  const balanceOf = async (address: AddressOrNull, userAddress: AddressOrNull) => {
+    if (!address || !userAddress) return null
+    try {
+      const result = await readContract(config, {
+        abi: erc20Abi,
+        address: address,
+        functionName: 'balanceOf',
+        args: [userAddress]
+      })
+
+      console.log('balanceOf: ', result, typeof result)
+
+      if (typeof result === 'bigint') {
+        return ethers.formatEther(result.toString()).substring(0, 6) // 如果结果是字符串，则直接返回
+      } else {
+        return '' // 如果结果不是字符串，返回空字符串
+      }
     } catch (error: any) {
       console.log('error: ', error)
     }
@@ -77,7 +108,8 @@ const erc20 = ({ writeContractAsync }: IProps = {}) => {
   return {
     approve,
     name,
-    symbol
+    symbol,
+    balanceOf
   }
 }
 
