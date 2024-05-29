@@ -6,8 +6,8 @@ import { addressOmit } from '../utils/textUtil'
 import { useEffect } from 'react'
 import { signMessage } from '@wagmi/core'
 import { config } from '@/app/utils/config'
-import axios from 'axios'
 import { baseApi } from '../utils/axios-config'
+import TooltipTimer from './utils/TooltipTimer'
 
 interface Props {
   signInText: string
@@ -78,9 +78,14 @@ export default function SignInButton({ signInText, color }: Props) {
               </SelectItem>
             ))}
           </Select>
-          <Button className="bg-white text-black rounded-full w-[13vw]" onPress={() => disconnect()}>
+          {/* <Button className="bg-white text-black rounded-full w-[13vw]" onPress={() => disconnect()}>
             {addressOmit(address)}
-          </Button>
+          </Button> */}
+          <TooltipTimer text="open user space" duration={3} placement="bottom" showArrow>
+            <Button className="bg-white text-black rounded-full w-[13vw]" onPress={() => disconnect()}>
+              {addressOmit(address)}
+            </Button>
+          </TooltipTimer>
         </div>
       ) : (
         <Button className={bgColor + ' text-black rounded-full w-[13vw] border border-black'} onPress={onOpen}>
