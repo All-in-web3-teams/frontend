@@ -62,6 +62,8 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
   useEffect(() => {
     // 成功后, 添加代币到用户钱包
     if (!isSuccess) return
+    console.log('isSuccess: ', isSuccess, data)
+
     addToken()
   }, [isSuccess])
 
