@@ -143,19 +143,6 @@ export default function AddLiquidity({ params }: { params: { address: string } }
     setTokenOption(tokenOptionList)
   }
 
-  const test = async () => {
-    console.log('test: ')
-
-    const res = await getReserves('0xe7221770f4ccf51b93977715a2eD87B8819a5643')
-    console.log('res: ', res)
-
-    const res0 = await token0('0xe7221770f4ccf51b93977715a2eD87B8819a5643')
-    console.log('res0: ', res0)
-
-    const res1 = await token1('0xe7221770f4ccf51b93977715a2eD87B8819a5643')
-    console.log('res1: ', res1)
-  }
-
   useEffect(() => {
     initTokenList()
   }, [])
