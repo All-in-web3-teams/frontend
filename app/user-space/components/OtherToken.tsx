@@ -1,42 +1,48 @@
 'use client'
 
 import { useAuth } from '@/app/hooks/user-auth'
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, ChipProps, Button, Select, SelectItem } from '@nextui-org/react'
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, ChipProps, Button, Select, SelectItem, useDisclosure } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
-import { baseApi } from '../utils/axios-config'
-import erc20 from '../utils/contract/erc20'
 import { useRouter } from 'next/navigation'
-import OthersTokens from './components/OtherToken'
+import erc20 from '@/app/utils/contract/erc20'
+import { baseApi } from '@/app/utils/axios-config'
+import { TokenModal } from './TokenModal'
 
 interface UserProps {
   address: AddressOrNull
   token: string
   symbol: string
-  amount: string
 }
 
-export default function UserSpace() {
+export default function OthersTokens() {
   const address = useAuth()
 
   const router = useRouter()
 
-  const { name, symbol, balanceOf } = erc20()
+  const { name, symbol } = erc20()
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
   const columns = [
     { name: 'Token', uid: 'token' },
     { name: 'Symbol', uid: 'symbol' },
-    { name: 'Amount', uid: 'amount' },
     { name: 'Action', uid: 'action' }
   ]
 
-  const selectItems = [
-    { key: 1, label: 'add Liquidity', path: '/add-liquidity/' },
-    { key: 2, label: 'remove Liquidity', path: '/remove-liquidity' },
-    { key: 3, label: 'relate social', path: '/relate-social-channels' },
-    { key: 4, label: 'publish raffle', path: '/publish-raffle' }
-  ]
-
   const [datasource, setDatasource] = useState<UserProps[]>([])
+
+  const [tokenAddress, setTokenAddress] = useState('')
+
+  const hanleClick = async (token: AddressOrNull) => {
+    console.log('token: ', token)
+    const res = await baseApi.get('api/get-token-info', { params: { contractAddress: token } })
+
+    console.log('res: ', res)
+    const address = res.data.raffleAddress
+
+    onOpenChange()
+    setTokenAddress(address)
+  }
 
   const renderCell = (item: UserProps, columnKey: React.Key) => {
     const cellValue = item[columnKey as keyof UserProps]
@@ -44,13 +50,9 @@ export default function UserSpace() {
       case 'action':
         return (
           <div className="flex items-center">
-            <Select radius={'full'} placeholder="Select an action" className="max-w-[75%]" label="">
-              {selectItems.map((selectItem) => (
-                <SelectItem key={selectItem.key} onClick={() => router.push(`${selectItem.path}/${item.address}`)}>
-                  {selectItem.label}
-                </SelectItem>
-              ))}
-            </Select>
+            <Button radius="full" color="primary" onClick={() => hanleClick(item.address)}>
+              start raffle
+            </Button>
           </div>
         )
       default:
@@ -62,30 +64,30 @@ export default function UserSpace() {
   // todo: 后续还需要增加用户已购买代币
   // PromiseAll 的方式调用合约 balance 函数获取 amount
   // 最终构建 datasource
-  const initUserSpace = async () => {
+  const initOtherTokens = async () => {
     try {
-      const userRes = await baseApi.get('api/get-token-list')
+      const res = await baseApi.get('api/get-all-token')
+      console.log('userRes: ', res)
 
-      if (!userRes) throw new Error('未获取到用户信息')
-      const userInfo: userInfo = userRes.data
-      const { address, contractAddress } = userInfo
+      if (!res) throw new Error('未获取到用户信息')
+      const tokens: tokenInfo[] = res.data
 
       // 构建 datasource
       const datasource: UserProps[] = []
       // 遍历 contractAddress, 根据合约地址, 去对应的 erc20 中调用 name, Symbol, balanceOf
-      for (let index = 0; index < contractAddress.length; index++) {
-        const item = contractAddress[index]
-        const [tokenName, tokenSymbol, tokenAmount] = await Promise.all([name(item), symbol(item), balanceOf(item, address)])
+      for (let index = 0; index < tokens.length; index++) {
+        const token = tokens[index]
+        const [tokenName, tokenSymbol] = await Promise.all([name(token.contractAddress), symbol(token.contractAddress)])
 
-        if (!tokenName || !tokenSymbol || !tokenAmount) continue
+        if (!tokenName || !tokenSymbol) continue
 
         datasource.push({
-          address: item,
+          address: token.contractAddress,
           token: tokenName,
-          symbol: tokenSymbol,
-          amount: tokenAmount
+          symbol: tokenSymbol
         })
       }
+      console.log('最终结果: ', res, datasource)
       setDatasource(datasource)
     } catch (error) {
       console.log('error: ', error)
@@ -93,12 +95,11 @@ export default function UserSpace() {
   }
 
   useEffect(() => {
-    initUserSpace()
+    initOtherTokens()
   }, [])
 
   return (
     <>
-      <div className="text-2xl font-extrabold mb-3">Created Tokens</div>
       <Table aria-label="Example table with custom cells">
         <TableHeader columns={columns}>
           {(column) => (
@@ -109,9 +110,7 @@ export default function UserSpace() {
         </TableHeader>
         <TableBody items={datasource}>{(item) => <TableRow key={item.address}>{(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}</TableRow>}</TableBody>
       </Table>
-
-      <div className="text-2xl font-extrabold mb-3 mt-3">Other Token</div>
-      <OthersTokens />
+      <TokenModal isOpen={isOpen} onOpenChange={onOpenChange} token={tokenAddress} />
     </>
   )
 }

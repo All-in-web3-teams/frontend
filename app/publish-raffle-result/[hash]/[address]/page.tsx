@@ -2,20 +2,20 @@
 import { Card, CardBody, Button } from '@nextui-org/react'
 import { useRouter } from 'next/navigation'
 import { useWaitForTransactionReceipt } from 'wagmi'
-import { Hash, Log } from 'viem'
+import { Hash } from 'viem'
 import ResponsiveImage from '@/app/components/images/responsiveImage'
 import { useAuth } from '@/app/hooks/user-auth'
 import { useEffect } from 'react'
 import erc20 from '@/app/utils/contract/erc20'
-import { addTokenToMetamask } from '@/app/utils/wallet/Metamask'
 import { baseApi } from '@/app/utils/axios-config'
 
-export default function PublishResult({ params }: { params: { hash: string } }) {
+export default function PublishResult({ params }: { params: { hash: string; address: string } }) {
   useAuth()
 
   const { name, symbol } = erc20()
 
-  const { hash } = params as { hash: Hash }
+  const { hash, address } = params as { hash: Hash; address: string }
+  console.log('hash: ', hash, address)
 
   const { isLoading, isSuccess, data } = useWaitForTransactionReceipt({
     confirmations: 1,
@@ -30,9 +30,8 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
   // 交易成功后, 添加 新发的代币 或 LP流动性代币
   const addSub = async () => {
     const contractAddress = data?.contractAddress
-    const res = await baseApi(`api/add-consumer?raffleAddress=${contractAddress}`)
-    const res2 = await baseApi(`api/add-automation?raffleAddress=${contractAddress}`)
-    console.log('res: ', res, res2)
+    const res = baseApi(`api/add-consumer?raffleAddress=${contractAddress}&contractAddress=${address}`)
+    const res1 = baseApi(`api/add-automation?raffleAddress=${contractAddress}`)
   }
 
   const generateSuccessText = (isSuccess: boolean, contract: any) => {

@@ -56,7 +56,7 @@ export default function PublishRaffle({ params }: { params: { hash: string } }) 
     })
     console.log('hash: ', hash)
 
-    router.push(`/publish-raffle-result/${hash}`)
+    router.push(`/publish-raffle-result/${hash}/${value.meme}`)
   }
 
   const initTokenList = async () => {

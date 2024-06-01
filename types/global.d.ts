@@ -32,3 +32,8 @@ type userInfo = {
   address: AddressOrNull
   contractAddress: AddressOrNull[]
 }
+
+type tokenInfo = {
+  contractAddress: AddressOrNull
+  name: string
+}
