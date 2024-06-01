@@ -11,6 +11,7 @@ import { Address } from 'viem'
 import { waitForTransactionReceipt } from '@wagmi/core'
 import { useWalletClient } from 'wagmi'
 import { useRouter } from 'next/navigation'
+import { ethers } from 'ethers'
 
 type FieldType = {
   meme: Address
@@ -38,7 +39,7 @@ export default function PublishRaffle({ params }: { params: { hash: string } }) 
 
     { type: 'number', key: 'memeBounty', label: 'memeBounty', rules: [{ required: true, message: 'Please enter the memeBounty' }] },
     { type: 'number', key: 'winnerBounty', label: 'winnerBounty', rules: [{ required: true, message: 'Please enter the winnerBounty' }] },
-    { type: 'number', key: 'entrancefee', label: 'entrancefee', rules: [{ required: true, message: 'Please enter the entrancefee' }] },
+    { type: 'text', key: 'entrancefee', label: 'entrancefee', rules: [{ required: true, message: 'Please enter the entrancefee' }] },
     { type: 'number', key: 'interval', label: 'interval', rules: [{ required: true, message: 'Please enter the interval' }] }
   ] as ControlItem[]
 
@@ -50,7 +51,7 @@ export default function PublishRaffle({ params }: { params: { hash: string } }) 
       abi: Raffle,
       bytecode: RaffleByteCode as Address,
 
-      args: [value.meme, value.memeBounty, value.winnerBounty, value.entrancefee, value.interval, vrf, gaslane, 10486, 50000]
+      args: [value.meme, value.memeBounty, value.winnerBounty, ethers.parseUnits(value.entrancefee.toString(), 18), value.interval, vrf, gaslane, 10486, 50000]
     })
     console.log('hash: ', hash)
 

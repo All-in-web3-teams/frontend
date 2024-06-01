@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/app/hooks/user-auth'
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, ChipProps, Button } from '@nextui-org/react'
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, ChipProps, Button, Select, SelectItem } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
 import { baseApi } from '../utils/axios-config'
 import erc20 from '../utils/contract/erc20'
@@ -28,6 +28,13 @@ export default function UserSpace() {
     { name: 'Action', uid: 'action' }
   ]
 
+  const selectItems = [
+    { key: 1, label: 'add Liquidity', path: '/add-liquidity/' },
+    { key: 2, label: 'remove Liquidity', path: '/remove-liquidity' },
+    { key: 3, label: 'relate social', path: '/relate-social-channels' },
+    { key: 4, label: 'publish raffle', path: '/publish-raffle' }
+  ]
+
   const [datasource, setDatasource] = useState<UserProps[]>([])
 
   const renderCell = (item: UserProps, columnKey: React.Key) => {
@@ -36,8 +43,13 @@ export default function UserSpace() {
       case 'action':
         return (
           <div className="flex items-center">
-            <Button onClick={() => router.push(`/add-liquidity/${item.address}`)}>add Liquidity</Button>| <Button onClick={() => router.push(`/remove-liquidity/${item.address}`)}>remove Liquidity</Button>|{' '}
-            <Button onClick={() => router.push(`/relate-social-channels/${item.address}`)}>relate social</Button> |<Button onClick={() => router.push(`/publish-raffle/${item.address}`)}>publish raffle</Button>
+            <Select radius={'full'} placeholder="Select an action" className="max-w-[75%]" label="">
+              {selectItems.map((selectItem) => (
+                <SelectItem key={selectItem.key} onClick={() => router.push(`${selectItem.path}/${item.address}`)}>
+                  {selectItem.label}
+                </SelectItem>
+              ))}
+            </Select>
           </div>
         )
       default:

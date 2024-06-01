@@ -1,4 +1,3 @@
-import { uniswapV2FactoryAbi } from '@/app/abi/Uniswap-V2-Factory'
 import { Address } from 'viem'
 
 enum NetworkNames {
@@ -15,11 +14,13 @@ const networks: NetworkConfig = {
   // todo: Mainnet 这里的地址要改对
   [NetworkNames.Mainnet]: {
     sushiSwapV2Router: '0x123MainnetContractAddress...',
-    uniswapV2Factory: '0x734583f62Bb6ACe3c9bA9bd...'
+    uniswapV2Factory: '0x734583f62Bb6ACe3c9bA9bd...',
+    Registrar: '0x44c693Aa41eDA40345F5Ecd4ff154a7f...'
   },
   [NetworkNames.Sepolia]: {
     sushiSwapV2Router: '0xeaBcE3E74EF41FB40024a21Cc2ee2F5dDc615791',
-    uniswapV2Factory: '0x734583f62Bb6ACe3c9bA9bd5A53143CA2Ce8C55A'
+    uniswapV2Factory: '0x734583f62Bb6ACe3c9bA9bd5A53143CA2Ce8C55A',
+    Registrar: '0xb0E49c5D0d05cbc241d68c05BC5BA1d1B7B72976'
   }
 }
 

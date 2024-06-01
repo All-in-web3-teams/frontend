@@ -1,4 +1,4 @@
-export const test = [
+export const Registrar = [
   {
     inputs: [
       { internalType: 'address', name: 'LINKAddress', type: 'address' },

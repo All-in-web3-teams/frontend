@@ -31,8 +31,8 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
   const addSub = async () => {
     const contractAddress = data?.contractAddress
     const res = await baseApi(`api/add-consumer?raffleAddress=${contractAddress}`)
-
-    console.log('res: ', res)
+    const res2 = await baseApi(`api/add-automation?raffleAddress=${contractAddress}`)
+    console.log('res: ', res, res2)
   }
 
   const generateSuccessText = (isSuccess: boolean, contract: any) => {

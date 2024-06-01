@@ -6,16 +6,6 @@ import { useRouter } from 'next/navigation'
 export default function Home() {
   const router = useRouter()
 
-  // 将 16 进制字符串转换为普通字符串
-  // const str = ethers.toUtf8String(hexString)
-  // console.log('str: ', str)
-
-  // const iface = new ethers.Interface(test1)
-  // const decoded = iface.parseTransaction({ data: data1 })
-
-  // console.log('Function name:', decoded.name)
-  // console.log('Arguments:', decoded.args)
-
   return (
     <div className="flex flex-col justify-between lg:flex-row">
       <div className="pt-0 md:pt-40">
