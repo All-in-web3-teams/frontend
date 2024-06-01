@@ -150,6 +150,7 @@ export default function AddLiquidity({ params }: { params: { address: string } }
   return (
     <div>
       <div className="text-2xl font-extrabold mb-3">Easily add tokens liquidity</div>
+      {/* <button onClick={() => approve('0x6f22079c2Cc5C13CaDd6a06313408bcFD58C14e4', '0xc0201afdc60c13155b6c2fb41ba3fee054e9118c', 100)}>测试</button> */}
       <Card>
         <CardBody className="py-40 flex justify-center items-center">
           <div className="text-1xl font-extrabold">Add Ligquidity</div>

@@ -4,11 +4,9 @@ import { RaffleByteCode } from '@/app/bytecode/Raffle'
 import Form, { ControlItem } from '@/app/components/Form'
 import { useAuth } from '@/app/hooks/user-auth'
 import { baseApi } from '@/app/utils/axios-config'
-import { config } from '@/app/utils/config'
 import { Card, CardBody } from '@nextui-org/react'
 import { useEffect, useState } from 'react'
 import { Address } from 'viem'
-import { waitForTransactionReceipt } from '@wagmi/core'
 import { useWalletClient } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { ethers } from 'ethers'
@@ -44,22 +42,20 @@ export default function PublishRaffle({ params }: { params: { hash: string } }) 
   ] as ControlItem[]
 
   const handlePublish = async (value: FieldType) => {
-    const vrf = '0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625'
-    const gaslane = '0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c'
+    const vrf = '0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B'
+    const gaslane = '0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae'
+    const subId = '19709626778135997837660097477283008945859889359416389923405312488169579505131'
+
+    // console.log('参数: ', value.meme, value.memeBounty, value.winnerBounty, ethers.parseUnits(value.entrancefee.toString(), 18), value.interval)
 
     const hash = await walletClient.data?.deployContract({
       abi: Raffle,
       bytecode: RaffleByteCode as Address,
 
-      args: [value.meme, value.memeBounty, value.winnerBounty, ethers.parseUnits(value.entrancefee.toString(), 18), value.interval, vrf, gaslane, 10486, 50000]
+      args: [value.meme, value.memeBounty, value.winnerBounty, ethers.parseUnits(value.entrancefee.toString(), 18), value.interval, vrf, gaslane, subId, 2500000]
     })
     console.log('hash: ', hash)
 
-    // const transactionReceipt = await waitForTransactionReceipt(config, {
-    //   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
-    // })
-
-    // console.log('transactionReceipt: ', transactionReceipt)
     router.push(`/publish-raffle-result/${hash}`)
   }
 
