@@ -1,0 +1,117 @@
+'use client'
+
+import { useAuth } from '@/app/hooks/user-auth'
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, ChipProps, Button, Select, SelectItem } from '@nextui-org/react'
+import { useEffect, useState } from 'react'
+import { baseApi } from '../utils/axios-config'
+import erc20 from '../utils/contract/erc20'
+import { useRouter } from 'next/navigation'
+import OthersTokens from './components/OtherToken'
+
+interface UserProps {
+  address: AddressOrNull
+  token: string
+  symbol: string
+  amount: string
+}
+
+export default function UserSpace() {
+  const address = useAuth()
+
+  const router = useRouter()
+
+  const { name, symbol, balanceOf } = erc20()
+
+  const columns = [
+    { name: 'Token', uid: 'token' },
+    { name: 'Symbol', uid: 'symbol' },
+    { name: 'Amount', uid: 'amount' },
+    { name: 'Action', uid: 'action' }
+  ]
+
+  const selectItems = [
+    { key: 1, label: 'add Liquidity', path: '/add-liquidity/' },
+    { key: 2, label: 'remove Liquidity', path: '/remove-liquidity' },
+    { key: 3, label: 'relate social', path: '/relate-social-channels' },
+    { key: 4, label: 'publish raffle', path: '/publish-raffle' }
+  ]
+
+  const [datasource, setDatasource] = useState<UserProps[]>([])
+
+  const renderCell = (item: UserProps, columnKey: React.Key) => {
+    const cellValue = item[columnKey as keyof UserProps]
+    switch (columnKey) {
+      case 'action':
+        return (
+          <div className="flex items-center">
+            <Select radius={'full'} placeholder="Select an action" className="max-w-[75%]" label="">
+              {selectItems.map((selectItem) => (
+                <SelectItem key={selectItem.key} onClick={() => router.push(`${selectItem.path}/${item.address}`)}>
+                  {selectItem.label}
+                </SelectItem>
+              ))}
+            </Select>
+          </div>
+        )
+      default:
+        return <div className="flex items-center w-[9vw]">{cellValue}</div>
+    }
+  }
+
+  // 从 后端获取用户已部署代币
+  // todo: 后续还需要增加用户已购买代币
+  // PromiseAll 的方式调用合约 balance 函数获取 amount
+  // 最终构建 datasource
+  const initUserSpace = async () => {
+    try {
+      const userRes = await baseApi.get('api/get-token-list')
+
+      if (!userRes) throw new Error('未获取到用户信息')
+      const userInfo: userInfo = userRes.data
+      const { address, contractAddress } = userInfo
+
+      // 构建 datasource
+      const datasource: UserProps[] = []
+      // 遍历 contractAddress, 根据合约地址, 去对应的 erc20 中调用 name, Symbol, balanceOf
+      for (let index = 0; index < contractAddress.length; index++) {
+        const item = contractAddress[index]
+        const [tokenName, tokenSymbol, tokenAmount] = await Promise.all([name(item), symbol(item), balanceOf(item, address)])
+
+        if (!tokenName || !tokenSymbol || !tokenAmount) continue
+
+        datasource.push({
+          address: item,
+          token: tokenName,
+          symbol: tokenSymbol,
+          amount: tokenAmount
+        })
+      }
+      setDatasource(datasource)
+    } catch (error) {
+      console.log('error: ', error)
+    }
+  }
+
+  useEffect(() => {
+    initUserSpace()
+  }, [])
+
+  return (
+    <>
+      <div className="text-2xl font-extrabold mb-3">Created Tokens</div>
+      <Table aria-label="Example table with custom cells">
+        <TableHeader columns={columns}>
+          {(column) => (
+            <TableColumn key={column.uid} align={column.uid === 'action' ? 'center' : 'start'}>
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody items={datasource}>{(item) => <TableRow key={item.address}>{(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}</TableRow>}</TableBody>
+      </Table>
+
+      <div className="text-2xl font-extrabold mb-3 mt-3">Other Token</div>
+      <OthersTokens />
+    </>
+  )
+}

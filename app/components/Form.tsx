@@ -21,6 +21,8 @@ export type ruleItem = {
 export type ControlItem = {
   key: string
   label: string
+  defaultValue?: any
+  disabled?: boolean
   placeholder?: string
   rules?: ruleItem[]
 } & (
@@ -42,6 +44,7 @@ export interface FormProps<Values = any> {
 
 export default function Form<Values>(props: FormProps<Values>) {
   const { controls, onSubmit, values = {}, submitText = 'Submit' } = props
+
   const [form, setForm] = useState({} as any)
   const [error, setError] = useState({} as { [key: string]: { isInvalid: boolean; errorMessage: string } })
 
@@ -49,23 +52,35 @@ export default function Form<Values>(props: FormProps<Values>) {
 
   const loadingSubmit = async (func: (values: any) => void) => {
     setIsLoading(true)
-    await func(values)
+    try {
+      await func(values)
+    } catch (error) {
+      console.log(error)
+    }
     setIsLoading(false)
   }
 
   useEffect(() => {
     if (controls && controls.length > 0) {
       const form = {} as Values
+
       controls.forEach((i) => Object.assign(form as any, { [i.key]: '' }))
       const error = {}
-      controls.forEach((i) =>
+      controls.forEach((i) => {
+        if (i.defaultValue) {
+          Object.assign(form as any, { [i.key]: i.defaultValue })
+        } else {
+          Object.assign(form as any, { [i.key]: '' })
+        }
+
         Object.assign(error, {
           [i.key]: {
             isInvalid: false,
             errorMessage: ''
           }
         })
-      )
+      })
+
       setForm(form)
       setError(error as any)
     }
@@ -171,7 +186,8 @@ export default function Form<Values>(props: FormProps<Values>) {
             type="text"
             variant="bordered"
             labelPlacement="outside-left"
-            value={form[c.key]}
+            value={form[c.key] ? form[c.key] : c.defaultValue}
+            disabled={c.disabled || false}
             label={c.label}
             placeholder={c.placeholder}
             classNames={{
@@ -199,7 +215,17 @@ export default function Form<Values>(props: FormProps<Values>) {
     if (c.type === 'select') {
       return (
         <div className="mb-3" key={c.key}>
-          <Select label={c.label} labelPlacement="outside-left" variant="bordered">
+          <Select
+            label={c.label}
+            labelPlacement="outside-left"
+            variant="bordered"
+            value={form[c.key]}
+            classNames={{
+              label: 'w-32 text-right text-lg',
+              base: 'justify-center'
+            }}
+            onChange={(e) => handleFormChange(c.key, e.target.value)}
+          >
             {c.options.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}

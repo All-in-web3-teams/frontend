@@ -6,9 +6,9 @@ import { addressOmit } from '../utils/textUtil'
 import { useEffect } from 'react'
 import { signMessage } from '@wagmi/core'
 import { config } from '@/app/utils/config'
-import axios from 'axios'
-import { tokenKey } from '../constans'
 import { baseApi } from '../utils/axios-config'
+import TooltipTimer from './utils/TooltipTimer'
+import { useRouter } from 'next/navigation'
 
 interface Props {
   signInText: string
@@ -20,6 +20,8 @@ export default function SignInButton({ signInText, color }: Props) {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure()
 
+  const router = useRouter()
+
   const { disconnect } = useDisconnect()
   const { address, isConnected } = useAccount()
 
@@ -28,12 +30,16 @@ export default function SignInButton({ signInText, color }: Props) {
 
   const completeSignIn = async () => {
     // 检查 是否有 token 了, 没有则继续获取
-    const res = await baseApi('api/user')
+    const res = await baseApi.get('api/check-login')
 
     if (res.data) return
 
     // 获取 随机数
-    const resNonce = await baseApi.get(`api/nonce/${address?.toLocaleLowerCase()}`)
+    const resNonce = await baseApi.get(`api/nonce`, {
+      params: {
+        address: address?.toLocaleLowerCase()
+      }
+    })
 
     const nonce: string = resNonce.data.nonce
 
@@ -42,14 +48,10 @@ export default function SignInButton({ signInText, color }: Props) {
       const signature = await signMessage(config, { message: nonce })
 
       // 完成登录
-      const resLogin = await axios.post('/api/login', {
+      const resLogin = await baseApi.post('api/login', {
         address: address?.toLocaleLowerCase(),
         signature
       })
-
-      if (resLogin.status === 200) {
-        // localStorage.setItem(tokenKey, resLogin.data.token)
-      }
     } catch (error) {
       console.log('error: ', error)
       disconnect()
@@ -79,9 +81,14 @@ export default function SignInButton({ signInText, color }: Props) {
               </SelectItem>
             ))}
           </Select>
-          <Button className="bg-white text-black rounded-full w-[13vw]" onPress={() => disconnect()}>
+          {/* <Button className="bg-white text-black rounded-full w-[13vw]" onPress={() => disconnect()}>
             {addressOmit(address)}
-          </Button>
+          </Button> */}
+          <TooltipTimer text="open your space" duration={3} placement="top" showArrow>
+            <Button className="bg-white text-black rounded-full w-[13vw]" onPress={() => router.push('/user-space')}>
+              {addressOmit(address)}
+            </Button>
+          </TooltipTimer>
         </div>
       ) : (
         <Button className={bgColor + ' text-black rounded-full w-[13vw] border border-black'} onPress={onOpen}>

@@ -7,6 +7,7 @@ import SignInWallet from '../components/page/SignInWallet'
 import { baseApi } from '../utils/axios-config'
 import { message } from '../utils/message'
 import { useRouter } from 'next/navigation'
+import { ethers } from 'ethers'
 
 type FieldType = {
   name: string
@@ -20,7 +21,7 @@ export default function PublishMeme() {
     { type: 'text', key: 'name', label: 'Name', rules: [{ required: true, message: 'Please enter the token name' }] },
     { type: 'text', key: 'symbol', label: 'Symbol', rules: [{ required: true, message: 'Please enter the token symbol' }] },
     { type: 'number', key: 'totalSupply', label: 'Total supply', rules: [{ required: true, message: 'Please enter the token total supply' }] },
-    { type: 'number', key: 'decimals', label: 'Decimals', rules: [{ required: true, message: 'Please enter the token decimals' }] }
+    { type: 'number', key: 'decimals', label: 'Decimals', defaultValue: 18, disabled: true }
   ] as ControlItem[]
 
   const account = useAccount()
@@ -31,7 +32,9 @@ export default function PublishMeme() {
   const { isConnected } = useAccount()
 
   const handlePublish = async (values: FieldType) => {
+    console.log('values: ', values)
     const res = await baseApi.get('api/abi')
+
     const GenerateMeme = res.data
 
     if (account.status !== 'connected') {
@@ -40,10 +43,19 @@ export default function PublishMeme() {
     const hash = await walletClient.data?.deployContract({
       abi: GenerateMeme.abi,
       bytecode: GenerateMeme.bytecode as Address,
-      args: [values.name, values.symbol, Number(values.decimals), Number(values.totalSupply)]
+      args: [values.name, values.symbol, Number(values.decimals), ethers.parseUnits(values.totalSupply.toString(), values.decimals)]
     })
 
     if (hash) {
+      // 让后端存储交易
+      baseApi.post('api/deploy', {
+        txHash: hash,
+        name: values.name,
+        symbol: values.symbol,
+        decimals: values.decimals,
+        TotalSupply: ethers.parseUnits(values.totalSupply.toString(), values.decimals).toString()
+      })
+
       router.push(`/publish-result/${hash}`)
     } else {
       message.error('Failed to publish token')

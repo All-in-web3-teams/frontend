@@ -22,16 +22,16 @@ export function WalletOptions({ onClose }: Props) {
       case 'MetaMask': {
         return (
           <div className="wallet-button bg-[#FDE9D0]" onClick={() => connectWallet(connector)}>
-            <Metamask className="ml-[2.2vw]" />
-            <span className="ml-[2vw]">Sign in with MetaMask</span>
+            <Metamask className="ml-5" />
+            <span className="ml-5">Sign in with MetaMask</span>
           </div>
         )
       }
       case 'OKX Wallet': {
         return (
           <div className="wallet-button">
-            <OKX className="ml-[2.2vw]" />
-            <span className="ml-[2vw]">Sign in with Okx</span>
+            <OKX className="ml-5" />
+            <span className="ml-5">Sign in with Okx</span>
           </div>
         )
       }

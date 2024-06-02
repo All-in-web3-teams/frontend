@@ -2,16 +2,17 @@
 import { Card, CardBody, Button } from '@nextui-org/react'
 import { useRouter } from 'next/navigation'
 import { useWaitForTransactionReceipt } from 'wagmi'
-import { Hash } from 'viem'
+import { Hash, Log } from 'viem'
 import ResponsiveImage from '@/app/components/images/responsiveImage'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
 import { useAuth } from '@/app/hooks/user-auth'
+import { useEffect } from 'react'
+import erc20 from '@/app/utils/contract/erc20'
+import { addTokenToMetamask } from '@/app/utils/wallet/Metamask'
 
 export default function PublishResult({ params }: { params: { hash: string } }) {
   useAuth()
 
-  // const [contractAddress, setContractAddress] = useState<Hash>()
+  const { name, symbol } = erc20()
 
   const { hash } = params as { hash: Hash }
 
@@ -21,32 +22,50 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
     hash
   })
 
-  console.log('data: ', data)
-
   const router = useRouter()
-
-  const fetchDeployContracts = async (tx: Hash) => {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_ETHERSCAN_API_URL}`, {
-      params: {
-        module: 'proxy',
-        action: 'eth_getTransactionReceipt',
-        txhash: tx,
-        apikey: process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY
-      }
-    })
-    console.log('response: ', response)
-    if (response.data.result.contractAddress) {
-      // setContractAddress(response.data.result.contractAddress)
-    }
-  }
 
   if (!hash) router.push('/publish-coins')
 
-  useEffect(() => {
-    console.log('isLoading: ', isLoading)
+  // 交易成功后, 添加 新发的代币 或 LP流动性代币
+  const addToken = async () => {
+    // todo: 扩展性不够
+    if (data?.contractAddress) {
+      // 不是空走的是添加 erc20
+      const tokenSymbol = await symbol(data?.contractAddress)
 
-    // !isLoading && fetchDeployContracts(hash)
-  }, [isLoading])
+      addTokenToMetamask(data?.contractAddress, tokenSymbol, 18)
+    } else {
+      // 空说明是添加流动性
+      const logs: Log<bigint, number, false>[] | undefined = data?.logs
+      if (logs) {
+        const log = logs[logs.length - 1]
+        const contractAddress = log.address
+
+        const tokenSymbol = await symbol(log.address)
+        console.log('contractAddress: ', contractAddress, 'tokenSymbol: ', tokenSymbol)
+
+        addTokenToMetamask(contractAddress, tokenSymbol, 18)
+      }
+    }
+  }
+
+  const generateSuccessText = (isSuccess: boolean, contract: any) => {
+    if (isSuccess) {
+      if (contract) {
+        return 'You have already publish your token'
+      } else {
+        return 'You have already add Liquidity'
+      }
+    }
+  }
+
+  useEffect(() => {
+    // 成功后, 添加代币到用户钱包
+    if (!isSuccess) return
+    console.log('isSuccess: ', isSuccess, data)
+
+    addToken()
+  }, [isSuccess])
 
   return (
     <>
@@ -84,10 +103,13 @@ export default function PublishResult({ params }: { params: { hash: string } }) 
               <div className="text-2xl font-extrabold">Your request is being processed</div>
             ) : isSuccess ? (
               <div className="flex flex-col gap-4 items-center">
-                <div className="text-2xl font-extrabold">You have already publish your token</div>
+                <div className="text-2xl font-extrabold">{generateSuccessText(isSuccess, data?.contractAddress)}</div>
                 <div className="text-2xl text-[#906503]">{data?.contractAddress}</div>
                 <Button className="bg-[#FFC849] rounded-full" onClick={() => window.open(`${process.env.NEXT_PUBLIC_ETHERSCAN_EXPLORER_URL}/address/${data?.contractAddress}`, '_blank')}>
                   check detail
+                </Button>
+                <Button className="bg-[#FFC849] rounded-full" onClick={() => router.push(`/add-liquidity/${data?.contractAddress}`)}>
+                  add Ligquidity
                 </Button>
                 <a href="#" className="text-[#169BD5]">
                   learn how to add token to the wallet
