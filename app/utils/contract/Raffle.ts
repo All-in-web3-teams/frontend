@@ -34,7 +34,7 @@ const raffle = ({ writeContractAsync }: IProps = {}) => {
     } catch (error: any) {
       // 捕获用户拒绝授权的错误, 并提示 需要授权, 才能继续流程
       console.log('error: ', error)
-      message.error('Please approve the transaction first')
+      message.error('Please remind token holders to add liquidity to the lottery contract')
     }
   }
 

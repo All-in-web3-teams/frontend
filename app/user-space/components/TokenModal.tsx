@@ -18,12 +18,16 @@ export function TokenModal({ isOpen, token, onOpenChange }: IProps) {
   const { writeContractAsync } = useWriteContract()
   const { enterRaffle } = raffle({ writeContractAsync })
   const [raffleAddress, setRaffleAddress] = useState(token)
+  const [loading, setLoading] = useState(false)
 
   const hanleClick = async () => {
     console.log('eth: ', eth, token, raffleAddress)
+    setLoading(true)
 
     const res = await enterRaffle(raffleAddress, eth)
     message.success('Raffle successfully')
+
+    setLoading(false)
 
     onOpenChange()
   }
@@ -45,7 +49,7 @@ export function TokenModal({ isOpen, token, onOpenChange }: IProps) {
               <Button color="danger" variant="light" onPress={onClose}>
                 Close
               </Button>
-              <Button color="primary" onPress={hanleClick}>
+              <Button color="primary" onPress={hanleClick} isLoading={loading}>
                 Raffle
               </Button>
             </ModalFooter>

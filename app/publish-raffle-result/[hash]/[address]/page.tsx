@@ -30,8 +30,8 @@ export default function PublishResult({ params }: { params: { hash: string; addr
   // 交易成功后, 添加 新发的代币 或 LP流动性代币
   const addSub = async () => {
     const contractAddress = data?.contractAddress
-    const res = baseApi(`api/add-consumer?raffleAddress=${contractAddress}&contractAddress=${address}`)
-    const res1 = baseApi(`api/add-automation?raffleAddress=${contractAddress}`)
+    const res = await baseApi(`api/add-consumer?raffleAddress=${contractAddress}&contractAddress=${address}`)
+    const res1 = await baseApi(`api/add-automation?raffleAddress=${contractAddress}`)
   }
 
   const generateSuccessText = (isSuccess: boolean, contract: any) => {
